@@ -31,7 +31,7 @@ databases:
 Using the EmbraceSQL Docker, do a migrate. This will create the new database, do an `ls` and see there will be two local db files.
 
 ```shell
-docker run embrace-sql migrate
+docker run embrace-sql reload
 ```
 
 ## Remote Databases
@@ -49,7 +49,9 @@ And yes -- those are environment variables, so you can put in plain strings if y
 
 ## Supported Databases
 
-* SQLite: by file path
-* PostgreSQL: by network
-* MySQL: by network
-* RedShift: by network
+- SQLite: by file path
+- PostgreSQL: by network
+- MySQL: by network
+- RedShift: by network
+
+While it's cool that you can have multiple, and mixed flavor of -- databases, you probably want to put something in there, so let's talk about [Tables](./tables).

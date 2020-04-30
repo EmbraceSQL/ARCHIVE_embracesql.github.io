@@ -1,0 +1,13 @@
+---
+name: Events
+route: /events
+---
+
+## Getting Started
+
+Events
+One of the big choices in system design is CRUD or some form of EventSourcing / CQRS setup. EmbraceSQL -- embraces SQL -- C’s are UPDATE/INSERT/DELETE and Q’s are SELECT. They are separated by SQL itself. So CQRS is ‘free’.
+
+Now for the event sourcing part. By default, every C - INSERT/UPDATE/DELETE - containing SQL will generate an event -- which is the SQL itself along with the context present at the end of the Data Hook chain, and post it along to a message bus / queue of your choice as configured (SQS/MQTT/AMQP/Kafka). This lets you know -- something interesting happened -- interesting enough to warrant recording it in your database.
+
+It’s actually a bit more than that -- EmbraceSQL internally runs off a queue, when you call an API, the inputs are enqueued, and run through a queue for each hook, as well as for the database query itself. EmbraceSQL is itself a SQL EventSourcing system -- where the events *are* the SQL queries, and the hooks are peeking into queues.

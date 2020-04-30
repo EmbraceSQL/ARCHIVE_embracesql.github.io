@@ -5,9 +5,17 @@ route: /tables
 
 ## Getting Started
 
-With a Table
-Create your first migration, which can actually be any SQL script you like, using the native syntax for your database. We’re working on our embracesql.db demo, which is SQLite, so we’ll create a file migrations/001_things.sql:
-```
+YOu can create tables in your database however you like, and EmbraceSQL will scan your database schema to reconfigure against that database. But, it's really handy to have a managed system of updating your database, and sticking with the name, we will embrace SQL.
+
+EmbraceSQL supports SQL script based migrations, against multiple databases.
+
+## Migrations
+
+Create your first migration, which can actually be any SQL script you like, using the native syntax for your database. We’re working on our embracesql.db demo, which is SQLite, so we’ll create a file example for it. Copy and paste this:
+
+#### migrations/default/001.sql
+
+```sql
 CREATE TABLE things(
   id integer PRIMARY KEY,
   name text NOT NULL
@@ -16,15 +24,19 @@ INSERT INTO things(1, ‘planes’);
 INSERT INTO things(2, ‘trains’);
 ```
 
-Notice the 001 -- that’s just one way of doing it, but know that EmbraceSQL runs migrations in file name order. So -- run your migration now with our Docker container. <>
+Notice the 001 -- that’s just one way of doing it, but know that EmbraceSQL runs migrations in file name order, per named database. To run a migration, run this in your shell.
 
+```shell
+docker run embrace-sql migrate
+```
 
-Migrations and Multiple Databases
-All migrations in /migrations run on all databases by default, but you can have database specific migrations by simply making a folder for each database, with sql inside. Let’s have our other database be different.
-migrations/other/001.sql:
+## Migrations and Multiple Databases
+
+You can have database specific migrations by simply making a folder for each database, with sql inside. Let’s have our `other` database be different.
+
+#### migrations/other/001.sql:
 
 ```sql
-DROP TABLE things;
 
 CREATE TABLE strings(
   String text PRIMARY KEY
@@ -33,4 +45,16 @@ INSERT INTO strings(string) VALUES(“hello world”);
 
 ```
 
-Using the EmbraceSQL Docker, do a migrate . Database specific migrations run after the root -- general purpose -- migrations, so the `things` table will be dropped.
+Run the migration. Note that you'll need to have an `other` database set up as described in [Databases](./databases).
+
+```shell
+docker run embrace-sql migrate
+```
+
+You can run migrations  at any time. EmbraceSQL is just smart enough to detect if the needed migrations have been run on the target database, and will warn you if they have not. EmbraceSQL will still start -- but it’s possible that some of your APIs won’t do what you expect if part of your database is missing!
+
+## Sharing Migrations
+
+Let's say you have a sharded database, and need to create the same table multiple times. EmbraceSQL makes this easy, simply create a folder under `./migrations/` for each database and make a symbolic link to share SQL files containing migrations.
+
+Databases and tables are great, but you need to be able to wire them into applications, which is the role of [SQL APIs](./sqlapis).
