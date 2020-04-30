@@ -4,3 +4,17 @@ route: /sqlapi
 ---
 
 ## Getting Started
+
+
+### Selecting a Database
+How does an SQL API know which database to use? The answer is default is the default, but you can set it in a hook. Let’s modify our hook to peek and see the database.
+```things/all.sql.before.js
+Export const before = (context) => {
+  console.log(context.database);
+}
+```
+Back in the shell where we ran EmbraceSQL, watch as you GET http://localhost:8765/things/all, you will see:
+
+```
+{default: “sqlite:embracesql.db”}
+```

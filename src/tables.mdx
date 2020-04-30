@@ -4,3 +4,33 @@ route: /tables
 ---
 
 ## Getting Started
+
+With a Table
+Create your first migration, which can actually be any SQL script you like, using the native syntax for your database. We’re working on our embracesql.db demo, which is SQLite, so we’ll create a file migrations/001_things.sql:
+```
+CREATE TABLE things(
+  id integer PRIMARY KEY,
+  name text NOT NULL
+);
+INSERT INTO things(1, ‘planes’);
+INSERT INTO things(2, ‘trains’);
+```
+
+Notice the 001 -- that’s just one way of doing it, but know that EmbraceSQL runs migrations in file name order. So -- run your migration now with our Docker container. <>
+
+
+Migrations and Multiple Databases
+All migrations in /migrations run on all databases by default, but you can have database specific migrations by simply making a folder for each database, with sql inside. Let’s have our other database be different.
+migrations/other/001.sql:
+
+```sql
+DROP TABLE things;
+
+CREATE TABLE strings(
+  String text PRIMARY KEY
+);
+INSERT INTO strings(string) VALUES(“hello world”);
+
+```
+
+Using the EmbraceSQL Docker, do a migrate . Database specific migrations run after the root -- general purpose -- migrations, so the `things` table will be dropped.

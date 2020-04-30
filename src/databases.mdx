@@ -4,3 +4,52 @@ route: /databases
 ---
 
 ## Getting Started
+
+EmbraceSQL not only works with multiple database flavors, it works with multiple databases. By default, there is one database named `default`, which points to the local sqlite. So -- not config at all is equivalent to:
+
+#### embracesql.yml
+
+```yaml
+databases:
+  default: sqlite:embracesql.db
+```
+
+## Adding a Database
+
+You can add as many databases as you like.
+
+Let’s add a new database, again using sqlite. Just paste in this config file:
+
+#### embracesql.yml
+
+```yml
+databases:
+  default: sqlite:embracesql.db
+  other: sqlite:other.db
+```
+
+Using the EmbraceSQL Docker, do a migrate. This will create the new database, do an `ls` and see there will be two local db files.
+
+```shell
+docker run embrace-sql migrate
+```
+
+## Remote Databases
+
+It's fun to use SQLite to learn, but it's probably not what you are really running. So EmbraceSQL lets you connect to remote databases that you already have running. Let's say you have PostgreSQL running on some host:
+
+#### embracesql.yml
+
+```yaml
+databases:
+  default: postgresql://${USER}:${PASSWORD}@${HOST}:${PORT}/${DB}
+```
+
+And yes -- those are environment variables, so you can put in plain strings if you like, or have those environment variables set -- actually any environment variables you like -- set before EmbraceSQL starts up.
+
+## Supported Databases
+
+* SQLite: by file path
+* PostgreSQL: by network
+* MySQL: by network
+* RedShift: by network
