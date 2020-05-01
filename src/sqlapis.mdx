@@ -241,7 +241,7 @@ Without writing any SQL at all, you can
 * `UPDATE` particular fields to values to Update
 * `DELETE` by key to Delete
 
-You can also make handlers for these automatically generated SQL APIs, without needing to write the SQL. The way to think about it is -- EmbraceSQL has a lot of SQL built in for the common cases, and you can write any SQL you like for more complex cases, all with the ability to have event handlers.
+You can also make handlers for these automatically generated SQL APIs, without needing to write the SQL. The way to think about it is -- EmbraceSQL has a lot of SQL built in for the common cases, and you can write any SQL you like for more complex cases, all with the ability to have event handlers to intercept query results and modify them as needed.
 
 Even more powerful, with [Generated Client Libraries](./clients), you have typing and autocompletion available for you for every API. Let's see how AutoCRUD looks from TypeScript. So you can get a lot of data access without any SQL or mapping at all.
 
@@ -280,7 +280,21 @@ client.databases.default.order_items.update({...my_order.order_items, quantity: 
 client.database.default.orders.delete(order_key);
 
 // but the items aren't deleted -- they are lookup data!
-console.log(client.database.default.items.all());
+console.log(client.databases.default.items.all());
+
+// clean up the items
+cliend.databases.default.items.all.delete();
+```
+
+And let's add a handler and see what that looks like:
+
+#### ./default/items/delete.before.js
+
+```javascript
+export const before = (context) => {
+  // look inside EmbraceSQL and see what it is doing!
+  console.log(context.sql, context.parameters);
+}
 ```
 
 Having an API is great, now let's add [Security](./security).
