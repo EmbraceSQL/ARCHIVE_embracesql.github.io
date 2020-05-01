@@ -5,9 +5,45 @@ route: /events
 
 ## Getting Started
 
-Events
 One of the big choices in system design is CRUD or some form of EventSourcing / CQRS setup. EmbraceSQL -- embraces SQL -- C’s are UPDATE/INSERT/DELETE and Q’s are SELECT. They are separated by SQL itself. So CQRS is ‘free’.
 
-Now for the event sourcing part. By default, every C - INSERT/UPDATE/DELETE - containing SQL will generate an event -- which is the SQL itself along with the context present at the end of the Data Hook chain, and post it along to a message bus / queue of your choice as configured (SQS/MQTT/AMQP/Kafka). This lets you know -- something interesting happened -- interesting enough to warrant recording it in your database.
+Now for the event sourcing part. By default every SQL API generates an event internal to EmbraceSQL event processing queues. Commands - INSERT/UPDATE/DELETE -- can be twinned to a Kafka topic. The entire HTTP request, encoded as JSON is placed in the topic.
 
-It’s actually a bit more than that -- EmbraceSQL internally runs off a queue, when you call an API, the inputs are enqueued, and run through a queue for each hook, as well as for the database query itself. EmbraceSQL is itself a SQL EventSourcing system -- where the events *are* the SQL queries, and the hooks are peeking into queues.
+#### embracesql.yml
+
+```yaml
+twin_commands_to: kafka:hostname:port/topic
+```
+
+
+There is actually a bit more than that -- EmbraceSQL internally runs off queues, when you call an API, the inputs are enqueued, and run through a queue for each handler, as well as for the database query itself. EmbraceSQL is itself a SQL EventSourcing system -- where the events *are* the SQL queries, and the handlers are handling events.
+
+## Data Events
+
+### SQL API
+
+This is the initial event in a series of events to proces a single SQL API call. This event is generated from inbound HTTP traffic, encoded as a single event object in memory, rendered as JSON, and published as a twin if so configured.
+
+APIs are implemented as paired queues, request and response, with a correlation identifier. Calling clients over HTTP wait for a corresponding response message or a timeout.
+
+### `before` Events
+
+Each of the folder hierarchy based `before` handlers has a service queue, automatically defined, so that each folder, and each sql file has a before handling queue. Messages are placed in the root folder before handler, handled, and then passed down the folder hierarchy until a query is reached.
+
+### SQL Events
+
+After the `before` handlers are processed, the resulting `context` is presented to a pool of SQL processing queues for each attached database. This allows concurrent data access without resorting to multithreading or traditional connection pooling.
+
+When a query completes, the resulting data is attached to the context and passed back up the chain as `after` events.
+
+### `after` Events
+
+Each folder in the hierarchy, and the sql file itself has an automatically defined `after` event queue, which run in the reverse order as `before` events, from the sql file back to the root directory. Each handler runs, and passed up to the subsequent queue.
+
+## System Events
+
+### Token Authorization
+
+### Exception
+
+Exceptions raised in any handler on any queue are events on a single system wide exception queue, which can have its own handler. This gives you an ability to hook in 

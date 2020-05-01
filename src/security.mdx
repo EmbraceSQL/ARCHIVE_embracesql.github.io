@@ -106,7 +106,9 @@ FROM multi_tenant_things
 WHERE tenant_id = :tenant_id
 ```
 
-And some handlers, we'll limit access to known domains, and be secure by default. Remember you will need to pass a bearer token that will decode and validate.
+And some handlers, we'll limit access to known domains, and be secure by default. Remember you will need to pass a bearer token that will decode and validate. Remember that this is a root folder hook, so you only need to have this one time in your whole system.
+
+#### ./before.js
 
 ```javascript
 export const before = (context) => {
