@@ -42,8 +42,10 @@ Each folder in the hierarchy, and the sql file itself has an automatically defin
 
 ## System Events
 
+While data events fire in response to SQL API calls, system events can fire at any time. 
+
 ### Token Authorization
 
 ### Exception
 
-Exceptions raised in any handler on any queue are events on a single system wide exception queue, which can have its own handler. This gives you an ability to hook in 
+Exceptions raised in any handler on any queue are events on a single system wide exception queue, which can have its own handler. This gives you an ability to hook in to exceptions globally as needed for logging or telemetry.

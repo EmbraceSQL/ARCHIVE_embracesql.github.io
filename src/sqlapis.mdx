@@ -204,4 +204,83 @@ curl http://localhost:8765/things/all
 
 This will show the table, then a modified table, then back to the original table.
 
+## AutoCRUD
+
+It's great to be able to have the full power of SQL when you need it -- but sometimes you just need to some basic CRUD. EmbraceSQL automatically inspects your databases and creates default APIs for your tables for working with single and multiple records operations by key.
+
+Let's set up some tables for a really vanilla shopping cart, in our default testing SQLite database.
+
+#### migrations/default/002.sql
+
+```sql
+CREATE TABLE orders(
+  order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL
+);
+CREATE TABLE items(
+  item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  description TEXT NOT NULL
+);
+CREATE TABLE order_items(
+  order_item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER NOT NULL,
+  item_id INTEGER NOT NULL,
+  quantity INTEGER NOT NULL,
+  FOREIGN KEY(order_id) REFERENCES orders(order_id),
+  FOREIGN KEY(item_id) REFERENCES items(item_id)
+);
+```
+
+```shell
+docker run embrace-sql migrate
+```
+
+Without writing any SQL at all, you can 
+* `POST` new rows to tables to Create
+* `GET` table rows by key to Read
+* `UPDATE` particular fields to values to Update
+* `DELETE` by key to Delete
+
+You can also make handlers for these automatically generated SQL APIs, without needing to write the SQL. The way to think about it is -- EmbraceSQL has a lot of SQL built in for the common cases, and you can write any SQL you like for more complex cases, all with the ability to have event handlers.
+
+Even more powerful, with [Generated Client Libraries](./clients), you have typing and autocompletion available for you for every API. Let's see how AutoCRUD looks from TypeScript. So you can get a lot of data access without any SQL or mapping at all.
+
+```typescript
+import EmbraceSQL from "embrace-sql";
+
+const client = new EmbraceSQL("http://localhost:8765");
+
+// make some items we can order
+const item_key = client.databases.default.items.create({description: "Paper"});
+// and array valued
+const more_item_keys = client.databases.items.create([
+  {description: "Can"},
+  {description: "Loaf"},
+]);
+
+// no need to pass in the key, it is an auto increment, but you 
+// sure will need it to put in order items...
+const order_key = client.databases.default.orders.create({name: "Sample"});
+
+// now join items and orders with one of each
+// again notice we don't need to mention the autoincrement
+client.databases.default.order_items([item_key, ...more_item_keys].map( 
+  (item_key) => ({order_key.order_id, item_key.item_id, quantity: 1})
+);
+
+// read back the master-detail graph
+const my_order = client.databases.default.orders.read(order_key);
+// notice three tables are joined automatically and you can get the description
+console.log(my_order.name, my_order.order_items, my_order.order_items[0].description);
+
+// hmm -- I really want two of that...
+client.databases.default.order_items.update({...my_order.order_items, quantity: 2});
+
+// nope -- I don't want it at all
+client.database.default.orders.delete(order_key);
+
+// but the items aren't deleted -- they are lookup data!
+console.log(client.database.default.items.all());
+```
+
 Having an API is great, now let's add [Security](./security).
