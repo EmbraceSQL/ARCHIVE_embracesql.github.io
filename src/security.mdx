@@ -1,0 +1,67 @@
+---
+name: Security
+route: /security
+---
+
+## Getting Started
+
+EmbraceSQL supports JWT in the `Authorization: Bearer <token>` header, passed in with each API call, and made available through the context.
+
+JWT tokens need to be decoded, and verified. EmbraceSQL supports public key signatures for verification. What it does not do -- is create or issue tokens, you get these from your identity provider.
+
+## Cryptographic Keys
+
+Configuration is file based, with keys stored as `.pem` files. When using public key encryption, to verify a token from your identity provider, you create a `.pem` file with the matching public key, and put it in the `./keys` folder. You can have multiple `.pem` files, and EmbraceSQL will try them for you, allowing multiple key providers if needed.
+
+## Accessing Tokens
+
+Once a token is decoded and verified, it is added to the context, you can get all the claims from the token inline in any handler. For example:
+
+#### things/all.sql.before.js
+
+```javascript
+export const before = (context) => {
+  console.log(context.token);
+  // destructure the token if you like
+  const { sub, iat } = context.token;
+};
+```
+
+## Allow and Deny Access
+
+In any given handler, you can `context.allow()` or `context.deny()` access at any location in code. This sets internal state, and makes a record on the context each time it is called.
+
+You can pass any object you like to `allow()` and `deny()`, these passed objects are recorded and appended to an array `.grants[]` that you can use in later event handlers, and as messages back to calling clients.
+
+OK -- here is how this works, when you call `.deny()`, the current access state of the context is set to prevent any query from executing. When you call `.allow()`, query execution is allowed. So rather than devise a 'security markup language', EmbraceSQL just has you decide if you want to deny or allow access inside handlers.
+
+To set up a secure by default system, you just create one root handler:
+
+#### ./before.js
+
+```javascript
+export const before = (context) => {
+  context.deny({});
+}
+```
+
+And that is it -- no query will run. Let's further assume you have set up Google OpenID Connect to authenticate your users, and you are passing that id token in your `Authorization: Bearer ...` on requests to EmbraceSQL. Google tokens have an `iss` issuer property that EmbraceSQL uses to automatically find the matching publc key, decodes, and verifies the token.
+
+In the case that a token is valid, it is made available to your handlers. In the case that a token is not valid, it simply is not available.
+
+#### ./all.before.js
+
+```javascript
+export const before = (context) => {
+  if (context.token && /.*@yourdomain.com$/.test(context.token.email)) {
+    // note you can pass 'any' object, string, array, or object with key/value
+    // here we use a string
+    context.allow("user from yourdomain granted");
+  }
+  // if there is no context, or no match, we stick with the root deny
+}
+```
+
+This security models gives you complete control, using appliation code.
+
+## Row Security

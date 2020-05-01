@@ -5,10 +5,12 @@ route: /sqlapis
 
 ## Getting Started
 
-A given SQL file defines a new API, automatically sets up [event queues](./events), generates Data Handlers templates, and augments [Generated Client Libraries](./clients). You just type SQL, EmbraceSQL does the rest.
+A given SQL file defines a new API, automatically sets up [event queues](./events), generates Data Handlers templates, and [Generated Client Libraries](./clients). You just type SQL, EmbraceSQL does the rest.
 This is a different approach than ORMs, which generate a meta schema, or mapping, which you then use in application code, which then generates SQL at runtime. This is a SQL first approach, and you are going to type a whole lot less to use it, as well as be able to access legacy databases.
 
-Make two new api endpoints in a directory by creating some sql files:
+The SQL you write is the SQL that is going to run.
+
+As a simple example, let's make two new api endpoints in a directory by creating some sql files:
 
 #### ./things/all.sql
 
@@ -62,7 +64,9 @@ You are really limited only by your imagination, but some suggestions for `befor
 Data Handlers are hierarchical, to allow defaults. Starting from a like-named foo.sql, EmbraceSQL looks for `foo.sql.[event].[extension]` for a given event, across all extensions. From there, the local directory `[event].[extension]`, and repeatedly up each directoy to the root directory where EmbraceSQL is running.
 
 OK -- so _resolution_, handlers run in order from root to child, so `./before.js` then `./things/before.js`, then `./things/all.before.js`. If at any point you throw an exception, this will make it all the way back to your calling client as an error message.
+
 This means handlers are a chain:
+
 root.before-->folder.before->query.before->query->query.after->folder.after->root.after
 
 Let’s look inside the `add` handlers, and tweak some parameters.
@@ -81,7 +85,7 @@ export const before = (context) => {
 ```javascript
 export const after = (context) => {
   // run a query, no parameters
-  context.results = context.invoke.things.all.sql({});
+  context.results = context.databases.default.things.all.sql({});
 };
 ```
 
@@ -105,12 +109,12 @@ This shared context, and single parameter call signature for handlers makes hand
 
 We've seen in [Databases](./databases) that you can have multiple databases -- so then -- how does an API -- an .sql file -- know which database to use? The answer is `default` is the default, but you can set the target database in a `before` handler. Let’s modify our handler to peek and see the database.
 
-### things/all.sql.before.js
+#### things/all.sql.before.js
 
 ```javascript
-Export const before = (context) => {
+export const before = (context) => {
   console.log(context.database);
-}
+};
 ```
 
 Back in the shell, give it a go.
@@ -147,15 +151,14 @@ SELECT * FROM strings;
 And now call it and sure enough -- out comes hello world.
 
 ```shell
-curl http://localhost:8765/other/strings 
+curl http://localhost:8765/other/strings
 ```
 
 ## SQL Dialect
 
-EmbraceSQL does not define a new SQL dialect, it passes your SQL through directly to each database. This lets you use SQL fully, along with all the advanced features of your database, without the traditional limits created by ORM style query generators.
+EmbraceSQL does not define a new SQL dialect, it passes your SQL through directly to each database. This lets you use SQL fully, along with all the advanced features of your database, without the traditional limits created by ORM style query generators. It also lets you write SQL files with your existing favorite SQL editing tools.
 
 The trade-off is of couse, you need to know the SQL of you database!
-
 
 ## Transactions
 
@@ -200,3 +203,5 @@ curl http://localhost:8765/things/all
 ```
 
 This will show the table, then a modified table, then back to the original table.
+
+Having an API is great, now let's add [Security](./security).
