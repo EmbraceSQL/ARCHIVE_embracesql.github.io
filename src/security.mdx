@@ -42,7 +42,7 @@ To set up a secure by default system, you just create one root handler:
 ```javascript
 export const before = (context) => {
   context.deny({});
-}
+};
 ```
 
 And that is it -- no query will run. Let's further assume you have set up Google OpenID Connect to authenticate your users, and you are passing that id token in your `Authorization: Bearer ...` on requests to EmbraceSQL. Google tokens have an `iss` issuer property that EmbraceSQL uses to automatically find the matching publc key, decodes, and verifies the token.
@@ -59,9 +59,75 @@ export const before = (context) => {
     context.allow("user from yourdomain granted");
   }
   // if there is no context, or no match, we stick with the root deny
-}
+};
 ```
 
 This security models gives you complete control, using appliation code.
 
 ## Row Security
+
+Assume you have a multi-tenant, or multi-user database and you want to limit which rows can be seen.
+
+One way to do this -- but you have a lot of flexibility with code and handlers, is to set up a domain tenant table, and have a tenant identifier on each row in other tables.
+
+Here is a sample migration:
+
+#### migrations/default/000_multitenant.sql
+
+```sql
+-- SQLite style
+CREATE TABLE tenants (
+  tenant_id INTEGER PRIMARY KEY,
+  domain TEXT NOT NULL,
+  UNIQUE(domain)
+);
+
+CREATE TABLE multi_tenant_things (
+  thing_id INTEGER PRIMARY KEY,
+  thing_value TEXT NOT NULL,
+  tenant_id INTEGER NOT NULL,
+  FOREIGN KEY(tenant_id) REFERENCES tenants(tenant_id)
+)
+```
+
+Here is the SQL you need to make this work:
+
+#### ./tenant.sql
+
+```sql
+SELECT tenant_id WHERE domain = ?
+```
+
+#### ./my_things.sql
+
+```sql
+SELECT thing_id, thing_value
+FROM multi_tenant_things
+WHERE tenant_id = :tenant_id
+```
+
+And some handlers, we'll limit access to known domains, and be secure by default. Remember you will need to pass a bearer token that will decode and validate.
+
+```javascript
+export const before = (context) => {
+  context.deny({});
+  if (context.token) {
+    // pick off the back half of the email, and throw an exception otherwise
+    const domain = context.token.email.split("@")[1];
+    // issue a query to get the tenant, using a positional parameter
+    // and add it to the context parameters -- matching the named parameter in my_things.sql
+    const tenant_id = context.databases.default.tenant.sql(domain).firstRow
+      .tenant_id;
+    context.parameters.tenant_id = tenant_id;
+    context.allow({ domain, tenant_id });
+  }
+};
+```
+
+And that is it -- now every query will be passed a tenant_id parameter, validated against a control table of known domains, authenticated by a third party OpenID Connect provider.
+
+What you'll need to remember to do:
+
+- Put the `:tenant_id` in your where clauses
+- Authenticate your users with OpenID Connect
+- Pass the `Authorization: Bearer ...` header
