@@ -7,4 +7,27 @@ route: /clients
 
 EmbraceSQL generates client libraries for JavaScript and TypeScript along with type definitions for your databases, tables, and SQL APIs automatically, creating files on disk you can reference for client code and handler implementations.
 
-The big benefit of these clients, compared to just using an HTTP client library is type autocompletion in your editor, and for folks s inclined, static type checkign with the TypeScript compiler.
+The big benefit of these clients, compared to just using an HTTP client library is type autocompletion in your editor, and for folks so inclined, static type checkign with the TypeScript compiler.
+
+## React Hooks
+EmbraceSQL generates a complete set of React hooks for each of your SQL APIs as well as all AutoCRUD methods. The EmbraceSQL client is shared through React context.
+
+## Admin Dashboard
+EmbraceSQL creates an administrarive dashboard for your databases automatically, with some pretty conventient features:
+* React components for each table and column that can be used in your own apps too!
+* One click drill down for master-detail record relationships based on referential integrity
+* AutoCRUD forms for each record with 
+  * Create/Read/Update/Delete hooks
+  * Replaceable field editors
+  * Autocomplete hooks
+  * Field validation hooks
+
+## Convenience Features
+
+### Automatic Retry
+
+-- exponential backoff
+
+### Client Event Emitter
+
+### SourceMaps & Debugging

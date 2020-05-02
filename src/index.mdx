@@ -17,12 +17,12 @@ this in any directory you like, just know that files will be created there!
 ```shell
 docker pull embrace-sql
 docker run embrace-sql init
-docker run embrace-sql start
+docker-compose up
 ```
 
-Now you'll see some output from EmbraceSQL starting.
+Now you'll see some output from EmbraceSQL starting. `docker-compose` is used to get access to the current directory and the port 8765.
 
-Check out the OpenAPI at http://localhost:8765/, notice the `hello` route, GET it!
+Check out the OpenAPI at http://localhost:8765/ with a browser, notice the `hello` route, GET it!
 
 ```shell
 curl http://localhost:8765/hello
@@ -30,10 +30,12 @@ curl http://localhost:8765/hello
 
 In your shell in the current directory where you ran EmbraceSQL, do a quick `ls`.
 
-- Notice the embracesql.yml -- that’s the config
-- Notice the embracesql.db -- that’s a sample database
+- Notice the docker-compose.yml -- that’s to make it easy to launch docker and mount the local directory
+- Notice the embrace-sql.yml -- that’s the config
+- Notice the embrace-sql.db -- that’s a sample database, in SQLite
 - Notice the hello.sql -- that’s what just ran
 - Notice the ./migrations -- we’ll get to that
+- Notice the ./embrace-sql -- that's where generated client library modules live
 
 Replace the contents of `hello.sql`.
 
@@ -54,5 +56,19 @@ curl --request POST --data '["world"]' http://localhost:8765/hello
 ```
 
 And that's it -- you have just created a REST API with nothing but SQL.
+
+Not only a REST API -- but you have generated a complete JavaScript/TypeScript client library with autocomplete, and [AutoCRUD](./sqlapis#autocrud).
+
+```javascript
+import EmbraceSQL from "./embrace-sql";
+
+const client = new EmbraceSQL("http://localhost:8765");
+
+const example = async () => {
+  const echoed = await client.invoke.hello("world");
+  console.log(echoed);
+};
+example();
+```
 
 From here, let's make something more sophisticated with [Databases](./databases), [Tables](./tables), and [SQL APIs](./sqlapis).

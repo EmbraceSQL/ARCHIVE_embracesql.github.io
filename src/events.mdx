@@ -26,17 +26,15 @@ This is the initial event in a series of events to proces a single SQL API call.
 
 APIs are implemented as paired queues, request and response, with a correlation identifier. Calling clients over HTTP wait for a corresponding response message or a timeout.
 
-### `before` Events
+### `before`
 
 Each of the folder hierarchy based `before` handlers has a service queue, automatically defined, so that each folder, and each sql file has a before handling queue. Messages are placed in the root folder before handler, handled, and then passed down the folder hierarchy until a query is reached.
-
-### SQL Events
 
 After the `before` handlers are processed, the resulting `context` is presented to a pool of SQL processing queues for each attached database. This allows concurrent data access without resorting to multithreading or traditional connection pooling.
 
 When a query completes, the resulting data is attached to the context and passed back up the chain as `after` events.
 
-### `after` Events
+### `after`
 
 Each folder in the hierarchy, and the sql file itself has an automatically defined `after` event queue, which run in the reverse order as `before` events, from the sql file back to the root directory. Each handler runs, and passed up to the subsequent queue.
 
@@ -44,8 +42,35 @@ Each folder in the hierarchy, and the sql file itself has an automatically defin
 
 While data events fire in response to SQL API calls, system events can fire at any time. 
 
-### Token Authorization
+### `token`
 
-### Exception
+OpenID Connect authorization tokens are decoded and validated by default. But you can provide your own event handler that does your own token validation.
+
+### `exception`
 
 Exceptions raised in any handler on any queue are events on a single system wide exception queue, which can have its own handler. This gives you an ability to hook in to exceptions globally as needed for logging or telemetry.
+
+### `resolve`
+
+SQL API calls and AutoCRUD calls resovle to chain of event handlers and associated SQL. The `resolve` event lets you tap into this and replace any handler or SQL you like, running *before* the first `before` handler.
+
+### `send`
+
+As a message is just about to be sent to an external message stream, you have a chance to intercept it.
+
+### `before-migration`
+
+### `after-migration`
+
+### `before-request`
+
+### `after-request`
+
+### `before-database-connection`
+
+### `after-database-connection`
+
+## Publshing Semantic Events
+
+In your application, there will be actions and states that really mean something in the context of your application. Often you will want to publish an event when these happen, along with a contextual set of data. EmbraceSQL makes this eay by letting you simply publish any object, at any time, from any handler. 
+The simple use case is to publish your context.

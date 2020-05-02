@@ -5,9 +5,9 @@ route: /tables
 
 ## Getting Started
 
-YOu can create tables in your database however you like, and EmbraceSQL will scan your database schema to reconfigure against that database. But, it's really handy to have a managed system of updating your database, and sticking with the name, we will embrace SQL.
+You can create tables in your database however you like, and EmbraceSQL will scan your database schema to reconfigure against that database. But, it's really handy to have a managed system of updating your database, and sticking with the name, we will embrace SQL.
 
-EmbraceSQL supports SQL script based migrations, against multiple databases.
+EmbraceSQL supports SQL script based migrations, against multiple databases, manages those migrations, and is smart enough to know when your schema and your SQL might be out of synch.
 
 ## Migrations
 
@@ -51,7 +51,7 @@ Run the migration. Note that you'll need to have an `other` database set up as d
 docker run embrace-sql migrate
 ```
 
-You can run migrations  at any time. EmbraceSQL is just smart enough to detect if the needed migrations have been run on the target database, and will warn you if they have not. EmbraceSQL will still start -- but it’s possible that some of your APIs won’t do what you expect if part of your database is missing!
+You can run migrations at any time. EmbraceSQL is just smart enough to detect if the needed migrations have been run on the target database, and will warn you if they have not. EmbraceSQL will still start -- but it’s possible that some of your APIs won’t do what you expect if part of your database is missing!
 
 ## Sharing Migrations
 

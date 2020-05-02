@@ -5,7 +5,7 @@ route: /databases
 
 ## Getting Started
 
-EmbraceSQL not only works with multiple database flavors, it works with multiple databases. By default, there is one database named `default`, which points to the local sqlite. So -- not config at all is equivalent to:
+EmbraceSQL not only works with multiple database flavors, it works with multiple databases. By default, there is one database named `default`, which points to the local sqlite. So -- no config at all is equivalent to:
 
 #### embracesql.yml
 
@@ -28,7 +28,7 @@ databases:
   other: sqlite:other.db
 ```
 
-Using the EmbraceSQL Docker, do a migrate. This will create the new database, do an `ls` and see there will be two local db files.
+Using the EmbraceSQL Docker, do a `reload`. This will create the new database, do an `ls` and see there will be two local db files.
 
 ```shell
 docker run embrace-sql reload
@@ -45,7 +45,7 @@ databases:
   default: postgresql://${USER}:${PASSWORD}@${HOST}:${PORT}/${DB}
 ```
 
-And yes -- those are environment variables, so you can put in plain strings if you like, or have those environment variables set -- actually any environment variables you like -- set before EmbraceSQL starts up.
+And yes -- those are environment variables, so you can put in plain strings if you like, or have those environment variables set -- actually any environment variables you like -- set before EmbraceSQL starts up. These environment variables let you manage secrets and database locations any way you like, and work well with Kubernetes, ECS, and docker-compose.
 
 ## Supported Databases
 
