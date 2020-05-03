@@ -54,4 +54,12 @@ And yes -- those are environment variables, so you can put in plain strings if y
 - MySQL: by network
 - RedShift: by network
 
+## Database URLs
+
+You connect to databases by URL:  
+* network format `flavor://user:password@host:port/database`
+* local file format `flavor:filename`
+
+You can harcode anything you like, but environment variables are suppoted in URLs and will be replaced automatically.
+
 While it's cool that you can have multiple, and mixed flavor of -- databases, you probably want to put something in there, so let's talk about [Tables](./tables).
