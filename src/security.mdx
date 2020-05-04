@@ -161,3 +161,10 @@ export const before = async (context) => {
 ```
 
 And that is it, EmbraceSQL will call `SET LOCAL SESSION AUTHORIZATION ${context.current_user}` and `SET LOCAL ROLE ${context.role}` for you, bridging in to the native access control concepts in PostgreSQL.
+
+
+## SQL Security
+
+The database account you use for EmbraceSQL can have any access level you like, but know that if you limit access, some features may not work. For example, if you do not grant `DELETE` to your database account, AutoCRUD cannot delete.
+
+Migration support requires EmbraceSQL to create one table `_embrace_sql_migrations_` in each database. You can run without using migrations or schema warnings if you wish.

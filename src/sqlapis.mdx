@@ -329,4 +329,78 @@ export const before = (context) => {
 };
 ```
 
+## Batching
+
+Working on single sets of parameters is great, but sometimes you want to do the same set of operations to an array of data. This is where batching comes in.
+
+To make batching simple, every SQL API and AutoCRUD call has automatic batch support. In addition to named parameters, and positional parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot.
+
+The semantics of the batch are:
+
+- You submit a batch to a SQL API or AutoCRUD, by value as a string, or by reference as a path to a file
+- A transaction is started for you
+- If by reference, the file is downloaded for you into a batch
+- For each row in the batch, run the SQL API or AutoCRUD
+- For each exception, raise an event as normal
+- For each success, buffer in a results collection
+- Commit the transaction started for you if no unhandled errors
+
+### Error Handling
+
+Some errors are more critical than others. Sometimes you want to keep going, sometimes you want to abort. EmbraceSQL is a bit of a perfectionist, and aborts the entire batch on any unhandled error. You can be more forgiving though, and decide to keep going by creating an error handler:
+
+#### ./things/add.sql.error.js
+
+```javascript
+export const error = (context) => {
+  // see what happened and print it out, the error is on the context
+  console.log(context.error);
+  // do nothing and the error is now eaten!
+
+  // raise it again -- or any error and the batch aborts
+  // throw "Oh! Noes!";
+};
+```
+
+You can also `try/catch` in your handler code, so in practice the `error` event handlers are useful to capture errors coming back from your database engine.
+
+### Supported Formats
+
+- TSV/CSV, parameter names are extracted from the 0th row
+- JSONS - one JSON per line, each line is self describing with parameter names
+
+## Invoking SQL APIs and AutoCRUDs
+
+There are three styles of invocation:
+
+- Request/Resposne via REST
+- Request/Response via generated client libraries
+- Fire and Forget via messages
+
+### REST
+
+Every SQL API and AutoCRUD is exposed via REST, as shown in examples. These 'block' until complete and return to the caller, transactions roll back automatically if any timeout occurs.
+
+### Cient Library
+
+Client libraries are typed wrappers that support auto-complete, but are really just REST.
+
+### Fire and Forget
+
+To avoid timeouts, and to not wait on long jobs you can submit a request via:
+
+- SQS
+- Kafka
+
+Each message is:
+
+```json
+{
+  "name": "path-to-api",
+  "parameters": ...
+}
+```
+
+Parameters can be positional (array), named (hash), batch (array of arrays or hash), or batch (path of file).
+
 Having an API is great, now let's add [Security](./security).
