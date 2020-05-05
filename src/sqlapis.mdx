@@ -355,7 +355,10 @@ Some errors are more critical than others. Sometimes you want to keep going, som
 export const error = (context) => {
   // see what happened and print it out, the error is on the context
   console.log(context.error);
-  // do nothing and the error is now eaten!
+  // do nothing and the error 'counts'
+
+  // optionally 'eat' the error
+  context.error = undefined;
 
   // raise it again -- or any error and the batch aborts
   // throw "Oh! Noes!";
@@ -373,13 +376,14 @@ You can also `try/catch` in your handler code, so in practice the `error` event 
 
 There are three styles of invocation:
 
-- Request/Resposne via REST
+- Request/Response via REST
 - Request/Response via generated client libraries
 - Fire and Forget via messages
 
 ### REST
 
-Every SQL API and AutoCRUD is exposed via REST, as shown in examples. These 'block' until complete and return to the caller, transactions roll back automatically if any timeout occurs.
+Every SQL API and AutoCRUD is exposed via REST, as shown in examples. 
+These work until complete and return to the caller, transactions roll back automatically if any timeout occurs.
 
 ### Cient Library
 
