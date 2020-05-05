@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "docz dev",
+    "typedoc": "scripts/gen",
     "build": "docz build",
     "serve": "docz serve"
   },
@@ -11,6 +12,11 @@
     "docz": "latest",
     "prop-types": "^15.7.2",
     "react": "^16.11.0",
-    "react-dom": "^16.11.0"
+    "react-dom": "^16.11.0",
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    "typedoc": "^0.17.6",
+    "typedoc-plugin-markdown": "^2.2.17"
   }
 }
