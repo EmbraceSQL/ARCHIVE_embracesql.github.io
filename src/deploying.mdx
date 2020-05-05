@@ -36,3 +36,20 @@ Internally EmbraceSQL uses Git to checkout and cache requested versions and dyna
 Care must be taken that your database won't have branch schema capability -- unfortunately such a thing does not yet exist. 
 To make working with versioned code easier, Embrace SQL knows which migrations are logically with a given branch/tag/sha and will warn you if they are not applied. 
 Even smarter -- EmbraceSQL, for each database, for each schema, keeps track of the schema after each migration and will warn you if the schema does no match the expectations, and raise and event containing the schema diff. Embrace SQL will still try to run your SQL APIs and AutoCRUD even if there is a mismatch, but having the mismatch schema output will greatly aid your comfort with versioning.
+
+## Logging
+
+EmbraceSQL writes out informative messages to `stdout` and error messages to `stderr`. Every message is written as a single line JSON with escaped linefeeds in an attempt to make the logs easier to parse and process with your favoite log and event management tool.
+
+Four log levels are enumerated: `DEBUG`, `INFO`, `WARN`, `ERROR`.
+
+## Metrics
+
+EmbraceSQL exports metrics in Prometheus format at a well known URL `http://server:port/metrics`. In addition to default Prometheus metrics, you will find:
+
+* Per SQL API / AutoCRUD 
+  * Counters for every event
+  * Histogram for every event handler run duration
+* Per Database
+  * Counters for every event
+  * Histogram for every event handler run duration

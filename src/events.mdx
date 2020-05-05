@@ -5,14 +5,16 @@ route: /events
 
 ## Getting Started
 
-One of the big choices in system design is CRUD or some form of EventSourcing / CQRS setup. EmbraceSQL -- embraces SQL -- C’s are UPDATE/INSERT/DELETE and Q’s are SELECT. They are separated by SQL itself. So CQRS is ‘free’.
+One of the big choices in system design is CRUD or some form of EventSourcing / CQRS setup. EmbraceSQL -- embraces SQL -- C’s are UPDATE/INSERT/DELETE and Q’s are SELECT. They are separated by SQL itself. So CQRS is ‘free’, in fact SQL has had this notion all along.
 
-Now for the event sourcing part. By default every command generates an event internal to EmbraceSQL event processing system. EmbraceSQL itself uses an event driven architecture, starting with an API request, running through multiple event handlers, and finally returning results or an error. 
+Now for the event sourcing part.
+By default every command generates an event internal to the EmbraceSQL event processing system. EmbraceSQL itself uses an event driven architecture, starting with an API request, running through multiple event handlers, and finally returning results or an error.
 Commands - INSERT/UPDATE/DELETE -- can be twinned to a Kafka topic, so that any time the database is to be modified, other services can be informed. When one of these commands is detected, the entire originating request, encoded as JSON is placed in the topic as a message, along with the SQL. These events let you see:
-* Who: the originating request context contains a user token if authenticated
-* What: the resulting SQL and Parameters
-* When: total ordering of events in Kafka
-* Why: the originating request and paramters resulting from an API call or REST
+
+- Who: the originating request context contains a user token if authenticated
+- What: the resulting SQL and Parameters
+- When: total ordering of events in Kafka
+- Why: the originating request and paramters resulting from an API call or REST
 
 #### embracesql.yml
 
@@ -20,22 +22,19 @@ Commands - INSERT/UPDATE/DELETE -- can be twinned to a Kafka topic, so that any 
 twin_commands_to: kafka:hostname:port/topic
 ```
 
-
-There is actually a bit more than that -- EmbraceSQL internally runs off queues, when you call an API, the inputs are enqueued, and run through a queue for each handler, as well as for the database query itself. EmbraceSQL is itself a SQL EventSourcing system -- where the events *are* the SQL queries, and the handlers are handling events.
+There is actually a bit more than that -- EmbraceSQL internally runs off message streams, when you call an API, the inputs are enqueued, and run through each handler, as well as for the database query itself. EmbraceSQL is itself a SQL EventSourcing system -- where the events _are_ the SQL APIs, and the handlers are handling events.
 
 ## Data Events
 
-Data events are the main point you can customize SQL APIs and AutoCRUD. All data handlers are hierarchial, with two chains 'before' and 'after'. Before chains run from the root folder down the file hierarchy, after chains run from the final folder with the sql up the file hierarchy.
+Data events are the main point you can customize SQL APIs and AutoCRUD. All data handlers are hierarchial, with two chains 'before' and 'after'. Before chains run from the root folder down the file hierarchy toward your SQL file, after chains run from the final folder with the SQL up the file hierarchy.
 
-### SQL API and AutoCRUD
-
-This is the initial event in a series of events to proces a single SQL API call. This event is generated from inbound HTTP traffic, encoded as a single event object in memory, rendered as JSON, and published as a twin if so configured.
-
-APIs are implemented as paired queues, request and response, with a correlation identifier. Calling clients over HTTP wait for a corresponding response message or a timeout.
-
-### 'before-batch'
+### 'beforeBatch'
 
 Everything exists in the context of a batch, though sometimes that batch has just one entry. Right before the batch starts its initial transaction, this handler gives you a chance to look at all the data to be processed in the batch.
+
+This is a place you can pre-clean a batch, removing entries so that they do not run at all, or adding additional parameters to every batch entry.
+
+Once this event is handled, EmbraceSQL will iterate every remaining entry in the batch.
 
 ### `before`
 
@@ -49,45 +48,47 @@ When a query completes, the resulting data is attached to the context and passed
 
 Each folder in the hierarchy, and the sql file itself has an automatically defined `after` event queue, which run in the reverse order as `before` events, from the sql file back to the root directory. Each handler runs, and passed up to the subsequent queue.
 
-### 'after-batch'
+### 'afterBatch'
 
 After the last set of parameters is processed, which can always be a 'batch of one', right before the batch transaction is committed, you have an event to handle.
 
-### 'after-error'
+### 'afterError'
 
 Unhandled exceptions raised in any handler in a chain, including coming from the supporting database engine, are handed here. You can do nothing, which continues the exception. If you handle a an exception, and do not raise another, EmbraceSQL treats it like no error happened, just like if you had wrapped your handler code in `try{} catch{}` and caught it.
 
 You can also handle exceptions normally in handler code as you see fit. This event acts as a backstop.
 
+There is no `beforeError`, EmbraceSQL is not psychic 🔮.
+
 ## System Events
 
-While data events fire in response to SQL API calls, system events can fire at any time. 
+While data events fire in response to SQL API calls, system events can fire at any time.
 
-### `validate-token`
+### `validateToken`
 
 OpenID Connect authorization tokens are decoded and validated by default. But you can provide your own event handler that does your own token validation.
 
-### `resolve-sql`
+### `resolveSQL`
 
-SQL API calls and AutoCRUD calls resovle to chain of event handlers and associated SQL. The `resolve` event lets you tap into this and replace any handler or SQL you like, running *before* the first `before` handler.
+SQL API calls and AutoCRUD calls resovle to chain of event handlers and associated SQL. The `resolve` event lets you tap into this and replace any handler or SQL you like, running _before_ the first `before` handler.
 
-### `send-message`
+### `sendMessage`
 
 As a message is just about to be sent to an external message stream, you have a chance to intercept it.
 
-### `before-migration`
+### `beforeMigration`
 
-### `after-migration`
+### `afterMigration`
 
-### `before-request-started`
+### `beforeRequestStarted`
 
-### `after-request-finished`
+### `beforeResponseSent`
 
-### `before-response-sent`
+### `afterRequestFinished`
 
-### `before-open-database-connection`
+### `beforeOpenDatabaseConnection`
 
-### `after-close-database-connection`
+### `afterCloseDatabaseConnection`
 
 ### `before-execute-database-sql`
 
@@ -97,5 +98,5 @@ As a message is just about to be sent to an external message stream, you have a 
 
 ## Publshing Semantic Events
 
-In your application, there will be actions and states that really mean something in the context of your application. Often you will want to publish an event when these happen, along with a contextual set of data. EmbraceSQL makes this eay by letting you simply publish any object, at any time, from any handler. 
+In your application, there will be actions and states that really mean something in the context of your application. Often you will want to publish an event when these happen, along with a contextual set of data. EmbraceSQL makes this eay by letting you simply publish any object, at any time, from any handler.
 The simple use case is to publish your context.
