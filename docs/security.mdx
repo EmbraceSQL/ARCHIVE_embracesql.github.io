@@ -101,7 +101,7 @@ Here is the SQL you need to make this work:
 #### ./tenant.sql
 
 ```sql
-SELECT tenant_id WHERE domain = ?
+SELECT tenant_id WHERE domain = :domain
 ```
 
 #### ./my_things.sql
@@ -122,10 +122,10 @@ export const before = (context) => {
   if (context.token) {
     // pick off the back half of the email, and throw an exception otherwise
     const domain = context.token.email.split("@")[1];
-    // issue a query to get the tenant, using a positional parameter
+    // issue a query to get the tenant
     // and add it to the context parameters -- matching the named parameter in my_things.sql
     // notice you don't need to tell it a row, or iterate rows here -- just a little convenience!
-    const tenant_id = await context.databases.default.tenant.sql(domain).tenant_id;
+    const tenant_id = await context.databases.default.tenant.sql({domain}).tenant_id;
     context.parameters.tenant_id = tenant_id;
     context.allow({ domain, tenant_id });
   }
@@ -161,7 +161,6 @@ export const before = async (context) => {
 ```
 
 And that is it, EmbraceSQL will call `SET LOCAL SESSION AUTHORIZATION ${context.current_user}` and `SET LOCAL ROLE ${context.role}` for you, bridging in to the native access control concepts in PostgreSQL.
-
 
 ## SQL Security
 

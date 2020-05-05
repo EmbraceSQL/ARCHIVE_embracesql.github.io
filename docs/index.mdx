@@ -40,19 +40,19 @@ In your shell in the current directory where you ran EmbraceSQL, do a quick `ls`
 Replace the contents of `hello.sql`.
 
 ```sql
-SELECT ?
+SELECT :stuff
 ```
 
-And now use that parameter. This is just a ? -- so it is not a named parameter, so you just set a parameter by its zero based index.
+And now use that parameter, just set it on the query string by name.
 
 ```shell
-curl http://localhost:8765/hello?0=world
+curl http://localhost:8765/hello?stuff=world
 ```
 
 And of course, you can post your parameters:
 
 ```shell
-curl --request POST --data '["world"]' http://localhost:8765/hello
+curl --request POST --data '{"stuff": "world"}' http://localhost:8765/hello
 ```
 
 And that's it -- you have just created a REST API with nothing but SQL.

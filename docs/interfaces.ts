@@ -137,7 +137,11 @@ type ParameterValue = {
 };
 
 /**
- * The current set of parameters.
+ * Parameters as passed to the SQL API or AutoCRUD. This can be extended
+ * or modified at runtime in handlers.
+ *
+ * These parameters can be passed by name, so a parameter called `pig` will
+ * be used in SQL as `:pig`
  */
 type ContextParameters<ParameterNames extends string> = {
   [ParameterName in ParameterNames]: ParameterValue | null;

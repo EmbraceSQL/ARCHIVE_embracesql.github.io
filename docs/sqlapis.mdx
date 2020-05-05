@@ -24,7 +24,8 @@ SELECT * FROM things;
 INSERT INTO things(id, name) VALUES(:id, :name);
 ```
 
-Notice the named parameters. In addition to positional parameters using `?`, you can set up named parameters using `:name` where `name` can be any continuous string you like. This format is as raw a sql as possible, with the specific idea that you can open and edit an SQL file using your favorite SQL editor or IDE to interactively test and build your query. EmbraceSQL doesn't dictate any particular developer tools.
+Notice the named parameters. 
+You can set up named parameters using `:name` where `name` can be any continuous string you like. This format is as raw a sql as possible, with the specific idea that you can open and edit an SQL file using your favorite SQL editor or IDE to interactively test and build your query. EmbraceSQL doesn't dictate any particular developer tools.
 
 If you open a browser to http://localhost:8765/ you will see EmbraceSQL has picked up your new files and there are now new APIs.
 
@@ -333,7 +334,8 @@ export const before = (context) => {
 
 Working on single sets of parameters is great, but sometimes you want to do the same set of operations to an array of data. This is where batching comes in.
 
-To make batching simple, every SQL API and AutoCRUD call has automatic batch support. In addition to named parameters, and positional parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot. This is so automatic in fact, everything in EmbraceSQL is a batch -- it's just that some batches have only one entry.
+To make batching simple, every SQL API and AutoCRUD call has automatic batch support. 
+In addition to named parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot. This is so automatic in fact, everything in EmbraceSQL is a batch -- it's just that some batches have only one entry.
 
 The semantics of the batch are:
 
@@ -412,7 +414,11 @@ Each message is on the queue is like:
 }
 ```
 
-Parameters can be positional (array), named (hash), batch (array of arrays or hash), or batch (path of file).
+Parameters can be 
+* Named (name value pairs, JSON object)
+* Batch (array of Named)
+* Batch (path of file, string).
+
 
 It's perfectly possible to have multiple EmbraceSQL servers running all pointed at the same input queue, in which case each server can and will be processing at least one message at a time.
 You should consider using a [FIFO Queue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html).
