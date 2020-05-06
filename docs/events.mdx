@@ -15,12 +15,57 @@ Commands - INSERT/UPDATE/DELETE -- can be twinned to a Kafka topic, so that any 
 - When: total ordering of events in Kafka
 - Why: the originating request and paramters resulting from an API call or REST
 
-
 ```yaml title="./embracesql.yml"
 twin_commands_to: kafka:hostname:port/topic
 ```
 
 There is actually a bit more than that -- EmbraceSQL internally runs off message streams, when you call an API, the inputs are enqueued, and run through each handler, as well as for the database query itself. EmbraceSQL is itself a SQL EventSourcing system -- where the events _are_ the SQL APIs, and the handlers are handling events.
+
+## Event Flow
+
+### SQL API and AutoCRUD
+
+```mermaid
+sequenceDiagram
+  participant Client
+  participant EmbraceSQL
+  participant Handler
+  participant Database
+  participant Kafka
+  Client->>+EmbraceSQL: SQLAPI or AutoCRUD at URL with parameters
+  EmbraceSQL->>+Handler: validateToken
+  Handler-->-EmbraceSQL: ...
+  EmbraceSQL->>+Handler: resolveSQL
+  Handler-->-EmbraceSQL: ...
+  EmbraceSQL->>+Handler: beforeStreamMessage
+  Handler-->-EmbraceSQL: ...
+  EmbraceSQL-xKafka: stream context as message
+  EmbraceSQL->>+Handler: beforeBatch chain
+  Handler-->-EmbraceSQL: ...
+  EmbraceSQL->>Database: transaction begin
+  activate Database
+  loop each batch entry
+    EmbraceSQL->>+Handler: before chain
+    Handler-->-EmbraceSQL: ...
+    EmbraceSQL->>Database: sql + parameters
+    Database-->EmbraceSQL: results returned
+    EmbraceSQL->>+Handler: after chain
+    Handler-->-EmbraceSQL: ...
+    opt Errors
+      EmbraceSQL->>+Handler: afterError chain
+      Handler-->-EmbraceSQL: ...
+    end
+  end
+  EmbraceSQL->>+Handler: afterBatch chain
+  Handler-->-EmbraceSQL: ...
+  alt error unhandled
+    EmbraceSQL->>Database: transaction rollback
+  else
+    EmbraceSQL->>Database: transaction commit
+  end
+  deactivate Database
+  EmbraceSQL-->-Client: context.results returned
+```
 
 ## Data Events
 
@@ -70,29 +115,17 @@ OpenID Connect authorization tokens are decoded and validated by default. But yo
 
 SQL API calls and AutoCRUD calls resovle to chain of event handlers and associated SQL. The `resolve` event lets you tap into this and replace any handler or SQL you like, running _before_ the first `before` handler.
 
-### `sendMessage`
+### `beforeStreamMessage`
 
-As a message is just about to be sent to an external message stream, you have a chance to intercept it.
+When connected to an external message stream, just before a message is to be sent to an external message stream, you have a chance to intercept it.
 
 ### `beforeMigration`
 
+Just before a migration is going to start, this event is fired for each distinct migration SQL script that will run.
+
 ### `afterMigration`
 
-### `beforeRequestStarted`
-
-### `beforeResponseSent`
-
-### `afterRequestFinished`
-
-### `beforeOpenDatabaseConnection`
-
-### `afterCloseDatabaseConnection`
-
-### `before-execute-database-sql`
-
-### `after-execute-database-sql`
-
-### `handle-schema-migration-mismatch`
+After the migration, this event is fired for each distinct migration SQL.
 
 ## Publshing Semantic Events
 

@@ -2,10 +2,17 @@
 title: Configuration
 ---
 
-cosmic config
+## Example Confguration
 
-default handler language
+Best way to understand the configuration is with a full sample.
 
-databases
+Databases are 'named', names such as `default`, `other`, and these names are used 
+in the generation of clients and typed context.
 
-full example config
+```yaml title="./embracesql.yml"
+databases:
+  default: sqlite:embracesql.db
+  other: sqlite:other.db
+  postgres: postgresql://${USER}:${PASSWORD}@${HOST}:${PORT}/${DB}
+twin_commands_to: kafka:hostname:port/topic
+```

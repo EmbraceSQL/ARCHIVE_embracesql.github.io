@@ -1,10 +1,15 @@
 const remarkImport = require("remark-code-import");
+const remarkMermaid = require("remark-mermaid");
 
 module.exports = {
+  scripts: [
+    "https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.4/mermaid.min.js",
+    "/init.js",
+  ],
   title: "EmbraceSQL",
   tagline: "You type the SQL, we'll do the REST",
-  url: " https://civitaslearning.github.io/embrace-sql/",
-  baseUrl: "/",
+  url: " https://civitaslearning.github.io/",
+  baseUrl: "/embrace-sql/",
   favicon: "img/favicon.ico",
   organizationName: "civitaslearning", // Usually your GitHub org/user name.
   projectName: "embrace-sql", // Usually your repo name.
@@ -40,7 +45,7 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         docs: {
-          remarkPlugins: [remarkImport],
+          remarkPlugins: [remarkImport, [remarkMermaid, {simple: true}]],
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl:

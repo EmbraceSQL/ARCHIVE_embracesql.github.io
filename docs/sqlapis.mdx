@@ -312,7 +312,8 @@ export const before = (context) => {
 Working on single sets of parameters is great, but sometimes you want to do the same set of operations to an array of data. This is where batching comes in.
 
 To make batching simple, every SQL API and AutoCRUD call has automatic batch support.
-In addition to named parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot. This is so automatic in fact, everything in EmbraceSQL is a batch -- it's just that some batches have only one entry.
+In addition to named parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot. 
+This is so automatic in fact, everything in EmbraceSQL is a batch -- it's just that when you send in named parameters *not* in an array, it is a 'batch of one'.
 
 The semantics of the batch are:
 
