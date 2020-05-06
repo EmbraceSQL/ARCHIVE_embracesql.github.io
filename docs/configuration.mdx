@@ -16,3 +16,27 @@ databases:
   postgres: postgresql://${USER}:${PASSWORD}@${HOST}:${PORT}/${DB}
 twin_commands_to: kafka:hostname:port/topic
 ```
+
+## File Tree
+
+You run EmbraceSQL in any folder you like -- this is the root. 
+A default root folder should look like:
+
+```
+after.js
+afterBatch.js
+afterError.js
+afterMigration.js
+before.js
+beforeBatch.js
+beforeMigration.js
+beforeStreamMessage.js
+embracesql.yml
+hello.sql
+migrations/
+resolveSQL.js
+validateToken.js
+```
+
+You can make any folders you like to organize your SQL, the recommendation is to have a folder per database.
+Within each database folder, organize by use case or topic area of your application.

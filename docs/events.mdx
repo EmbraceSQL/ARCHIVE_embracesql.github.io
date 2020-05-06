@@ -71,7 +71,7 @@ sequenceDiagram
 
 Data events are the main point you can customize SQL APIs and AutoCRUD. All data handlers are hierarchial, with two chains 'before' and 'after'. Before chains run from the root folder down the file hierarchy toward your SQL file, after chains run from the final folder with the SQL up the file hierarchy.
 
-### 'beforeBatch'
+### `beforeBatch`
 
 Everything exists in the context of a batch, though sometimes that batch has just one entry. Right before the batch starts its initial transaction, this handler gives you a chance to look at all the data to be processed in the batch.
 
@@ -91,13 +91,14 @@ When a query completes, the resulting data is attached to the context and passed
 
 Each folder in the hierarchy, and the sql file itself has an automatically defined `after` event queue, which run in the reverse order as `before` events, from the sql file back to the root directory. Each handler runs, and passed up to the subsequent queue.
 
-### 'afterBatch'
+### `afterBatch`
 
 After the last set of parameters is processed, which can always be a 'batch of one', right before the batch transaction is committed, you have an event to handle.
 
-### 'afterError'
+### `afterError`
 
-Unhandled exceptions raised in any handler in a chain, including coming from the supporting database engine, are handed here. You can do nothing, which continues the exception. If you handle a an exception, and do not raise another, EmbraceSQL treats it like no error happened, just like if you had wrapped your handler code in `try{} catch{}` and caught it.
+Unhandled exceptions raised in any handler in a chain, including coming from the supporting database engine, are handed here. You can do nothing, which continues the exception. 
+If you handle an exception, and do not raise another, and set `context.error = null`, EmbraceSQL treats it like no error happened, just like if you had wrapped your handler code in `try{} catch{}` and caught it.
 
 You can also handle exceptions normally in handler code as you see fit. This event acts as a backstop.
 
@@ -127,7 +128,11 @@ Just before a migration is going to start, this event is fired for each distinct
 
 After the migration, this event is fired for each distinct migration SQL.
 
-## Publshing Semantic Events
+## Handlers
 
-In your application, there will be actions and states that really mean something in the context of your application. Often you will want to publish an event when these happen, along with a contextual set of data. EmbraceSQL makes this eay by letting you simply publish any object, at any time, from any handler.
-The simple use case is to publish your context.
+Handlers are `async` JavaScript or TypeScript functions, that receive a `context`, run code as you see fit, and either throw an error or return. 
+The `context` is modified in place, and serves as a shared blackboard for each request.
+
+Handlers go one per file, with the file ending in [event-name].[js|ts], exporting a single function named by [event-name].
+
+EmbraceSQL will generate empty handlers for you for each folder, for each sql file, and for the system level event handlers.

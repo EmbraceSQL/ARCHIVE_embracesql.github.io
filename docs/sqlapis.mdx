@@ -66,7 +66,22 @@ OK -- so _resolution_, handlers run in order from root to child, so `./before.js
 
 This means handlers are a chain:
 
-root.before-->folder.before->query.before->query->query.after->folder.after->root.after
+```mermaid
+stateDiagram
+  br: Root level before handler
+  bf: Folder level before handler
+  bff: File level before handler
+  aff: File level after handler
+  af: Folder level after handler
+  ar: Root level after handler
+  [*] --> br
+  br --> bf
+  bf --> bff
+  bff --> aff
+  aff --> af
+  af --> ar
+  ar --> [*]
+```
 
 Let’s look inside the `add` handlers, and tweak some parameters.
 
@@ -201,6 +216,7 @@ It's great to be able to have the full power of SQL when you need it -- but some
 
 Let's set up some tables for a really vanilla shopping cart, in our default testing SQLite database and see how this works. We'll have a pretty normal set or orders, items to order, and an association table to put items in an order.
 
+
 ```sql title="./migrations/default/002.sql"
 CREATE TABLE orders(
   order_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -312,8 +328,8 @@ export const before = (context) => {
 Working on single sets of parameters is great, but sometimes you want to do the same set of operations to an array of data. This is where batching comes in.
 
 To make batching simple, every SQL API and AutoCRUD call has automatic batch support.
-In addition to named parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot. 
-This is so automatic in fact, everything in EmbraceSQL is a batch -- it's just that when you send in named parameters *not* in an array, it is a 'batch of one'.
+In addition to named parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot.
+This is so automatic in fact, everything in EmbraceSQL is a batch -- it's just that when you send in named parameters _not_ in an array, it is a 'batch of one'.
 
 The semantics of the batch are:
 
@@ -328,7 +344,6 @@ The semantics of the batch are:
 ### Error Handling
 
 Some errors are more critical than others. Sometimes you want to keep going, sometimes you want to abort. EmbraceSQL is a bit of a perfectionist, and aborts the entire batch on any unhandled error. You can be more forgiving though, and decide to keep going by creating an error handler:
-
 
 ```javascript title="./things/add.sql.error.js"
 export const error = (context) => {
@@ -371,7 +386,6 @@ Client libraries are typed wrappers that support auto-complete, but are really j
 ### Fire and Forget
 
 To avoid timeouts, and to not wait on long jobs you can submit a request via SQS, which you configure:
-
 
 ```yaml title="./embracesql.yml"
 fire_and_forget_from: amazon://${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}/arn:aws:sqs:us-east-2:123456789012:queue1
