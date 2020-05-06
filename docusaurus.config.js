@@ -1,7 +1,9 @@
+const remarkImport = require("remark-code-import");
+
 module.exports = {
   title: "EmbraceSQL",
   tagline: "You type the SQL, we'll do the REST",
-  url: "https://your-docusaurus-test-site.com",
+  url: " https://civitaslearning.github.io/embrace-sql/",
   baseUrl: "/",
   favicon: "img/favicon.ico",
   organizationName: "civitaslearning", // Usually your GitHub org/user name.
@@ -38,9 +40,9 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         docs: {
+          remarkPlugins: [remarkImport],
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
-          // Please change this to your repo.
           editUrl:
             "https://github.com/civitaslearning/embrace-sql/edit/master/",
         },

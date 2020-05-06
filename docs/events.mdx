@@ -15,9 +15,8 @@ Commands - INSERT/UPDATE/DELETE -- can be twinned to a Kafka topic, so that any 
 - When: total ordering of events in Kafka
 - Why: the originating request and paramters resulting from an API call or REST
 
-#### embracesql.yml
 
-```yaml
+```yaml title="./embracesql.yml"
 twin_commands_to: kafka:hostname:port/topic
 ```
 

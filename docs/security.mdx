@@ -20,9 +20,7 @@ You can also use symmetric key, shared secret, encryption on JWT. Just store the
 
 Once a token is decoded and verified, it is added to the context as `context.token`, you can get all the claims from a JWT token inline in any handler. For example:
 
-#### things/all.sql.before.js
-
-```javascript
+```javascript title="./things/all.sql.before.js"
 export const before = async (context) => {
   console.log(context.token);
   // destructure the token if you like
@@ -41,9 +39,7 @@ When you call `context.allow()`, query execution is allowed. So rather than devi
 
 To set up a secure by default system, you just create one root handler:
 
-#### ./before.js
-
-```javascript
+```javascript title="./before.js"
 export const before = async (context) => {
   context.deny({});
 };
@@ -53,9 +49,7 @@ And that is it -- no query will run. Let's further assume you have set up Google
 
 In the case that a token is valid, it is made available to your handlers. In the case that a token is not valid, it simply is not available. So checking authentication is checking for token existence.
 
-#### ./all.before.js
-
-```javascript
+```javascript title="./all.before.js"
 export const before = async (context) => {
   // a token, and from a specific domain
   if (context.token && /.*@yourdomain.com$/.test(context.token.email)) {
@@ -77,9 +71,7 @@ One way to do this -- but you have a lot of flexibility with code and handlers, 
 
 Here is a sample migration:
 
-#### migrations/default/000_multitenant.sql
-
-```sql
+```sql title="./migrations/default/000_multitenant.sql"
 -- SQLite style
 CREATE TABLE tenants (
   tenant_id INTEGER PRIMARY KEY,
@@ -97,15 +89,11 @@ CREATE TABLE multi_tenant_things (
 
 Here is the SQL you need to make this work:
 
-#### ./tenant.sql
-
-```sql
+```sql title="./tenant.sql"
 SELECT tenant_id WHERE domain = :domain
 ```
 
-#### ./my_things.sql
-
-```sql
+```sql title="./my_things.sql"
 SELECT thing_id, thing_value
 FROM multi_tenant_things
 WHERE tenant_id = :tenant_id
@@ -113,9 +101,7 @@ WHERE tenant_id = :tenant_id
 
 And some handlers, we'll limit access to known domains, and be secure by default. Remember you will need to pass a bearer token that will decode and validate. Remember that this is a root folder hook, so you only need to have this one time in your whole system.
 
-#### ./before.js
-
-```javascript
+```javascript title="./before.js"
 export const before = (context) => {
   context.deny({});
   if (context.token) {
@@ -143,7 +129,7 @@ What you'll need to remember to do:
 
 Integrating with PostgreSQL [row level security](https://www.postgresql.org/docs/12/ddl-rowsecurity.html) is even easier. You set your policies in SQL as specified by PostgreSQL, and all you need to do is tell EmbraceSQL who is the current user. Note that you don't need to create a database user for each possible user in PostgreSQL.
 
-```javascript
+```javascript title="./before.js"
 export const before = async (context) => {
   context.deny({});
   if (context.token) {
