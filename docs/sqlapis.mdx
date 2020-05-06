@@ -11,19 +11,15 @@ The SQL you write is the SQL that is going to run. You are in full control and w
 
 As a simple example, let's make two new API endpoints in a directory by creating some sql files:
 
-#### ./things/all.sql
-
-```sql
+```sql title="./things/all.sql"
 SELECT * FROM things;
 ```
 
-#### ./things/add.sql
-
-```sql
+```sql title="./things/add.sql"
 INSERT INTO things(id, name) VALUES(:id, :name);
 ```
 
-Notice the named parameters. 
+Notice the named parameters.
 You can set up named parameters using `:name` where `name` can be any continuous string you like. This format is as raw a sql as possible, with the specific idea that you can open and edit an SQL file using your favorite SQL editor or IDE to interactively test and build your query. EmbraceSQL doesn't dictate any particular developer tools.
 
 If you open a browser to http://localhost:8765/ you will see EmbraceSQL has picked up your new files and there are now new APIs.
@@ -74,18 +70,14 @@ root.before-->folder.before->query.before->query->query.after->folder.after->roo
 
 Let’s look inside the `add` handlers, and tweak some parameters.
 
-#### things/add.sql.before.js
-
-```javascript
+```javascript title="./things/add.sql.before.js"
 export const before = async (context) => {
   // modify a passed in parameter by name
   context.parameters.name = context.parameters.name + “-ahoy”;
 }
 ```
 
-#### things/add.sql.after.js
-
-```javascript
+```javascript title="./things/add.sql.after.js"
 export const after = async (context) => {
   // run a different SQL API inline, no parameters, grabbing the results
   context.results = await context.databases.default.things.all.sql({});
@@ -112,9 +104,7 @@ This shared context, and single parameter call signature for handlers makes hand
 
 We've seen in [Databases](./databases) that you can have multiple databases -- so then -- how does an API -- an .sql file -- know which database to use? The answer is `default` is the default, but you can set the target database in a `before` handler. Let’s modify our handler to peek and see the database.
 
-#### things/all.sql.before.js
-
-```javascript
+```javascript title="./things/all.sql.before.js"
 export const before = async (context) => {
   console.log(context.database);
 };
@@ -134,9 +124,7 @@ And the output:
 
 You can set any SQL API to run on any database, or at least try to run. Just like we logged out the database earlier, we can set the database. Let’s take advantage of handler ordering and have every query in a new file use the `other` database.
 
-#### other/before.js
-
-```javascript
+```javascript title="./other/before.js"
 export const before = async (context) => {
   context.database = context.databases.other;
   console.log(database);
@@ -145,9 +133,7 @@ export const before = async (context) => {
 
 That’s it, and using our handler resolution rules, every .sql in this folder on down will use the other database. So let’s create an SQL API endpoint. We've changed 'the database', meaning `context.database` from the default -- `context.databases.default` to `context.databases.other`.
 
-#### other/strings.sql
-
-```sql
+```sql title="./other/strings.sql"
 SELECT * FROM strings;
 ```
 
@@ -177,9 +163,7 @@ Data can still return, which can let you do somewhat clever things like, insert 
 
 For example, let's modify a previous handler:
 
-#### things/add.sql.before.js
-
-```javascript
+```javascript title="./things/add.sql.before.js"
 export const before = async (context) => {
   // start a database transaction
   await context.databases.default.transactions.begin();
@@ -188,9 +172,7 @@ export const before = async (context) => {
 }
 ```
 
-#### things/add.sql.after.js
-
-```javascript
+```javascript title="./things/add.sql.after.js"
 export const after = async (context) => {
   // run a SQL API inline, no parameters
   context.results = await context.invoke.things.all.sql({});
@@ -219,9 +201,7 @@ It's great to be able to have the full power of SQL when you need it -- but some
 
 Let's set up some tables for a really vanilla shopping cart, in our default testing SQLite database and see how this works. We'll have a pretty normal set or orders, items to order, and an association table to put items in an order.
 
-#### migrations/default/002.sql
-
-```sql
+```sql title="./migrations/default/002.sql"
 CREATE TABLE orders(
   order_id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL
@@ -318,9 +298,7 @@ example();
 So, every SQL API and AutoCrud has event handlers, and pure SQL inside. So you
 can actually spy on EmbraceSQL -- even change the SQL for AutoCRUD on the fly if you really wish it!
 
-#### ./default/items/before.js
-
-```javascript
+```javascript title="./default/items/before.js"
 export const before = (context) => {
   // look inside EmbraceSQL and see what it is doing!
   // this will run for the folder items, corresponding to the table items
@@ -333,7 +311,7 @@ export const before = (context) => {
 
 Working on single sets of parameters is great, but sometimes you want to do the same set of operations to an array of data. This is where batching comes in.
 
-To make batching simple, every SQL API and AutoCRUD call has automatic batch support. 
+To make batching simple, every SQL API and AutoCRUD call has automatic batch support.
 In addition to named parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot. This is so automatic in fact, everything in EmbraceSQL is a batch -- it's just that some batches have only one entry.
 
 The semantics of the batch are:
@@ -350,9 +328,8 @@ The semantics of the batch are:
 
 Some errors are more critical than others. Sometimes you want to keep going, sometimes you want to abort. EmbraceSQL is a bit of a perfectionist, and aborts the entire batch on any unhandled error. You can be more forgiving though, and decide to keep going by creating an error handler:
 
-#### ./things/add.sql.error.js
 
-```javascript
+```javascript title="./things/add.sql.error.js"
 export const error = (context) => {
   // see what happened and print it out, the error is on the context
   console.log(context.error);
@@ -383,7 +360,7 @@ There are three styles of invocation:
 
 ### REST
 
-Every SQL API and AutoCRUD is exposed via REST, as shown in examples. 
+Every SQL API and AutoCRUD is exposed via REST, as shown in examples.
 These work until complete and return to the caller, transactions roll back automatically if any timeout occurs.
 
 ### Cient Library
@@ -394,9 +371,8 @@ Client libraries are typed wrappers that support auto-complete, but are really j
 
 To avoid timeouts, and to not wait on long jobs you can submit a request via SQS, which you configure:
 
-#### embracesql.yml
 
-```yaml
+```yaml title="./embracesql.yml"
 fire_and_forget_from: amazon://${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}/arn:aws:sqs:us-east-2:123456789012:queue1
 fire_and_forget_workers: 1
 ```
@@ -413,11 +389,11 @@ Each message is on the queue is like:
 }
 ```
 
-Parameters can be 
-* Named (name value pairs, JSON object)
-* Batch (array of Named)
-* Batch (path of file, string).
+Parameters can be
 
+- Named (name value pairs, JSON object)
+- Batch (array of Named)
+- Batch (path of file, string).
 
 It's perfectly possible to have multiple EmbraceSQL servers running all pointed at the same input queue, in which case each server can and will be processing at least one message at a time.
 You should consider using a [FIFO Queue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html).

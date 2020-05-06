@@ -12,9 +12,7 @@ EmbraceSQL supports SQL script based migrations, against multiple databases, man
 
 Create your first migration, which can actually be any SQL script you like, using the native syntax for your database. We’re working on our embracesql.db demo, which is SQLite, so we’ll create a file example for it. Copy and paste this:
 
-#### migrations/default/001.sql
-
-```sql
+```sql title="migrations/default/001.sql"
 CREATE TABLE things(
   id integer PRIMARY KEY,
   name text NOT NULL
@@ -33,9 +31,8 @@ docker run embrace-sql migrate
 
 You can have database specific migrations by simply making a folder for each database, with sql inside. Let’s have our `other` database be different.
 
-#### migrations/other/001.sql:
 
-```sql
+```sql title="migrations/other/001.sql:"
 
 CREATE TABLE strings(
   String text PRIMARY KEY
