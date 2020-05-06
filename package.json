@@ -1,18 +1,30 @@
 {
-  "name": "docz-example-basic",
-  "version": "2.0.0",
-  "license": "MIT",
+  "name": "embrace-sql-docs",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "dev": "docz dev",
-    "build": "docz build",
-    "serve": "docz serve"
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy"
   },
   "dependencies": {
-    "docz": "latest",
-    "prop-types": "^15.7.2",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0",
-    "typescript": "^3.8.3"
+    "@docusaurus/core": "^2.0.0-alpha.54",
+    "@docusaurus/preset-classic": "^2.0.0-alpha.54",
+    "classnames": "^2.2.6",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4"
   },
-  "devDependencies": {}
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

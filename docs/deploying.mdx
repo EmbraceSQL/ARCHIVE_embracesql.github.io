@@ -1,6 +1,5 @@
 ---
-name: Deploying
-route: /deploying
+title: Deploying
 ---
 
 ## Getting Started
@@ -33,8 +32,8 @@ You can get pretty creative with these handlers, and set the version based on th
 
 Internally EmbraceSQL uses Git to checkout and cache requested versions and dynamically sets itself up to process SQL APIs and AutoCRUD with the SQL and handlers specified at that version. Separate event queues and handler registrations are used for each version, so there is no risk of mismatch between your SQL and your handlers.
 
-Care must be taken that your database won't have branch schema capability -- unfortunately such a thing does not yet exist. 
-To make working with versioned code easier, Embrace SQL knows which migrations are logically with a given branch/tag/sha and will warn you if they are not applied. 
+Care must be taken that your database won't have branch schema capability -- unfortunately such a thing does not yet exist.
+To make working with versioned code easier, Embrace SQL knows which migrations are logically with a given branch/tag/sha and will warn you if they are not applied.
 Even smarter -- EmbraceSQL, for each database, for each schema, keeps track of the schema after each migration and will warn you if the schema does no match the expectations, and raise and event containing the schema diff. Embrace SQL will still try to run your SQL APIs and AutoCRUD even if there is a mismatch, but having the mismatch schema output will greatly aid your comfort with versioning.
 
 ## Logging
@@ -47,9 +46,9 @@ Four log levels are enumerated: `DEBUG`, `INFO`, `WARN`, `ERROR`.
 
 EmbraceSQL exports metrics in Prometheus format at a well known URL `http://server:port/metrics`. In addition to default Prometheus metrics, you will find:
 
-* Per SQL API / AutoCRUD 
-  * Counters for every event
-  * Histogram for every event handler run duration
-* Per Database
-  * Counters for every event
-  * Histogram for every event handler run duration
+- Per SQL API / AutoCRUD
+  - Counters for every event
+  - Histogram for every event handler run duration
+- Per Database
+  - Counters for every event
+  - Histogram for every event handler run duration
