@@ -11,6 +11,8 @@ The big benefit of these clients, compared to just using an HTTP client library 
 ## React Hooks
 EmbraceSQL generates a complete set of React hooks for each of your SQL APIs as well as all AutoCRUD methods. The EmbraceSQL client is shared through React context.
 
+These hooks use the generated client APIs for you to offer a declarative, React style interface.
+
 ## Admin Dashboard
 EmbraceSQL creates an administrarive dashboard for your databases automatically, with some pretty conventient features:
 * React components for each table and column that can be used in your own apps too!
@@ -24,5 +26,9 @@ EmbraceSQL creates an administrarive dashboard for your databases automatically,
 ## Convenience Features
 
 * Automatic Retry
-* Client Event Emitter
+  * Helps deal with little network blips
+  * A bit of exponential backoff to avoid flooding
+  
 * SourceMaps & Debugging
+  * Client libraries have source maps inside
+  * You can also attach to the EmbraceSQL server with a JS debugger!
