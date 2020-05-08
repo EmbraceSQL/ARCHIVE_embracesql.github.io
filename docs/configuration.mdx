@@ -22,7 +22,7 @@ twin_commands_to: kafka:hostname:port/topic
 You run EmbraceSQL in any folder you like -- this is the root. 
 A default root folder should look like:
 
-```
+```bash title="/"
 after.js
 afterBatch.js
 afterError.js
@@ -33,10 +33,61 @@ beforeMigration.js
 beforeStreamMessage.js
 embracesql.yml
 hello.sql
+things/
+    all.sql
+    all.sql.before.js
+    all.sql.after.js
+    add.sql
+    add.sql.before.js
+    add.sql.after.js
 migrations/
+    000.sql
+    001.sql
 resolveSQL.js
 validateToken.js
 ```
 
 You can make any folders you like to organize your SQL, the recommendation is to have a folder per database.
 Within each database folder, organize by use case or topic area of your application.
+
+```bash title="/"
+pg/
+    after.js
+    afterBatch.js
+    afterError.js
+    afterMigration.js
+    before.js
+    beforeBatch.js
+    beforeMigration.js
+    beforeStreamMessage.js
+    embracesql.yml
+    things/
+        all.sql
+        all.sql.before.js
+        all.sql.after.js
+    migrations/
+        000.sql
+        001.sql
+    resolveSQL.js
+    validateToken.js
+sqlite/
+    after.js
+    afterBatch.js
+    afterError.js
+    afterMigration.js
+    before.js
+    beforeBatch.js
+    beforeMigration.js
+    beforeStreamMessage.js
+    embracesql.yml
+    things/
+        all.sql
+        all.sql.before.js
+        all.sql.after.js
+    migrations/
+        000.sql
+        001.sql
+    resolveSQL.js
+    validateToken.js
+```
+
