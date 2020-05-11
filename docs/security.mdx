@@ -20,7 +20,7 @@ You can also use symmetric key, shared secret, encryption on JWT. Just store the
 
 Once a token is decoded and verified, it is added to the context as `context.token`, you can get all the claims from a JWT token inline in any handler. For example:
 
-```javascript title="./things/all.sql.before.js"
+```javascript title="./default/things/all.sql.before.js"
 export const before = async (context) => {
   console.log(context.token);
   // destructure the token if you like
@@ -89,11 +89,11 @@ CREATE TABLE multi_tenant_things (
 
 Here is the SQL you need to make this work:
 
-```sql title="./tenant.sql"
+```sql title="./default/tenant.sql"
 SELECT tenant_id WHERE domain = :domain
 ```
 
-```sql title="./my_things.sql"
+```sql title="./default/my_things.sql"
 SELECT thing_id, thing_value
 FROM multi_tenant_things
 WHERE tenant_id = :tenant_id

@@ -10,7 +10,8 @@ Embrace SQL lets you package itself, the server, along with your configuration, 
 docker run embrace-sql build my-embrace-sql-image
 ```
 
-This will take the core EmbraceSQL server container, and overlay the current directoy into a new Docker image. From there you can push your image to any container registry or hosting tool you like, as well as convert from Docker to other container formats.
+This will take the core EmbraceSQL server container, and overlay the current directory into a new Docker image.
+From there you can push your image to any container registry or hosting tool you like, as well as convert from Docker to other container formats.
 
 ## Online Versioning
 
@@ -20,9 +21,7 @@ You can do this on the fly with REST by appending `#branch` or `#tag` or `#sha` 
 
 Similarly in code, in a handler, say you want to set all queries to be served from the `stage` branch, which means the most recent commit on this branch.
 
-#### ./before.js
-
-```javascript
+```javascript title="./before.js"
 export const before = async (context) => {
   context.version = "stage";
 };

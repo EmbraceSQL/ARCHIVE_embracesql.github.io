@@ -24,7 +24,7 @@ Now you'll see some output from EmbraceSQL starting. `docker-compose` is used to
 Check out the OpenAPI at http://localhost:8765/ with a browser, notice the `hello` route, GET it!
 
 ```shell
-curl http://localhost:8765/hello
+curl http://localhost:8765/default/hello
 ```
 
 In your shell in the current directory where you ran EmbraceSQL, do a quick `ls`.
@@ -32,26 +32,26 @@ In your shell in the current directory where you ran EmbraceSQL, do a quick `ls`
 - Notice the docker-compose.yml -- that’s to make it easy to launch docker and mount the local directory
 - Notice the embrace-sql.yml -- that’s the config
 - Notice the embrace-sql.db -- that’s a sample database, in SQLite
-- Notice the hello.sql -- that’s what just ran
+- Notice the ./default/hello.sql -- that’s what just ran
 - Notice the ./migrations -- we’ll get to that
 - Notice the ./embrace-sql -- that's where generated client library modules live
 
 Replace the contents of `hello.sql`.
 
-```sql
+```sql title="./default/hello.sql"
 SELECT :stuff
 ```
 
 And now use that parameter, just set it on the query string by name.
 
 ```shell
-curl http://localhost:8765/hello?stuff=world
+curl http://localhost:8765/default/hello?stuff=world
 ```
 
-And of course, you can post your parameters:
+And of course, you can post your parameters. We're not being pedantic about REST!
 
 ```shell
-curl --request POST --data '{"stuff": "world"}' http://localhost:8765/hello
+curl --request POST --data '{"stuff": "world"}' http://localhost:8765/default/hello
 ```
 
 And that's it -- you have just created a REST API with nothing but SQL.
@@ -64,7 +64,7 @@ import EmbraceSQL from "./embrace-sql";
 const client = new EmbraceSQL("http://localhost:8765");
 
 const example = async () => {
-  const echoed = await client.invoke.hello("world");
+  const echoed = await client.databases.default.hello("world");
   console.log(echoed);
 };
 example();
