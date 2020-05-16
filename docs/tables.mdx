@@ -31,7 +31,6 @@ docker run embrace-sql migrate
 
 You can have database specific migrations by simply making a folder for each database, with sql inside. Let’s have our `other` database be different.
 
-
 ```sql title="migrations/other/001.sql:"
 
 CREATE TABLE strings(
@@ -53,4 +52,4 @@ You can run migrations at any time. EmbraceSQL is just smart enough to detect if
 
 Let's say you have a sharded database, and need to create the same table multiple times. EmbraceSQL makes this easy, simply create a folder under `./migrations/` for each database and make a symbolic link to share SQL files containing migrations.
 
-Databases and tables are great, but you need to be able to wire them into applications, which is the role of [SQL APIs](./sqlapis).
+Databases and tables are great, but you need to be able to wire them into applications, which is the role of [SQL Modules](./sqlmodules).

@@ -1,11 +1,13 @@
 ---
-title: SQL APIs
+title: SQL Modules
 ---
 
 ## Getting Started
 
-A given SQL file defines a new API, automatically sets up [event queues](./events), generates Data Handlers templates, and [Generated Client Libraries](./clients). You just type SQL, EmbraceSQL does the rest.
-This is a different approach than ORMs, which generate a meta schema, or a mapping, which you then use in application code, which then generates SQL at runtime. This is a SQL first approach, and you are going to type a whole lot less to use it, as well as be able to access legacy databases.
+A given SQL file defines a new Modules, which exposes an API, automatically sets up [event queues](./events), generates Data Handlers templates, and [Generated Client Libraries](./clients).
+You just type SQL, EmbraceSQL does the rest.
+This is a different approach than ORMs, which generate a meta schema, or a mapping, which you then use in application code, which then generates SQL at runtime.
+This is a SQL first approach, and you are going to type a whole lot less to use it, as well as be able to access legacy databases.
 
 The SQL you write is the SQL that is going to run. You are in full control and will not need to learn a new way to write SQL.
 
@@ -36,7 +38,7 @@ curl http://localhost:8765/default/things/all
 
 ## Data Handlers
 
-Data Handlers are an opportunity for you to add bits of code to handle events in the EmbraceSQL SQL API lifecycle. Data access can _almost always_ be pulled of with straight SQL, but sometimes you need a little adjustment.
+Data Handlers are an opportunity for you to add bits of code to handle events in the EmbraceSQL SQL module lifecycle. Data access can _almost always_ be pulled of with straight SQL, but sometimes you need a little adjustment.
 
 Back in the local directory do `ls things/default` -- notice a few new files:
 
@@ -100,7 +102,7 @@ export const before = async (context) => {
 
 ```javascript title="./default/things/add.sql.after.js"
 export const after = async (context) => {
-  // run a different SQL API inline, no parameters, grabbing the results
+  // run a different SQL module inline, no parameters, grabbing the results
   context.results = await context.databases.default.things.all.sql({});
 };
 ```
@@ -117,13 +119,13 @@ The advantage here is you can batch up multiple interactions, even with multiple
 
 The Data Handler execution model relies on a context, which is shared between all handlers in a chain. This is the _one parameter_ passed to each handler, potentialy modified by a handler, and is available subsequent handlers.
 
-EmbraceSQL itself creates this context when an SQL API call starts, and augments this context when running the SQL through to the database, adding the results from the database.
+EmbraceSQL itself creates this context when an SQL module call starts, and augments this context when running the SQL through to the database, adding the results from the database.
 
 This shared context, and single parameter call signature for handlers makes handlers more consistent and affords easy access to object destructuring syntax features to pick out the bits of context you find interesting in your application.
 
 ### Using Multiple Databases
 
-We've seen in [Databases](./databases) that you can have multiple databases -- so then -- how does an API -- an .sql file -- know which database to use? 
+We've seen in [Databases](./databases) that you can have multiple databases -- so then -- how does an API -- an .sql file -- know which database to use?
 
 The answer is -- folders. Each folder under root correspondes to a named database.
 
@@ -153,7 +155,7 @@ export const before = async (context) => {
 
 ```javascript title="./things/add.sql.after.js"
 export const after = async (context) => {
-  // run a SQL API inline, no parameters
+  // run a SQL module inline, no parameters
   context.results = await context.invoke.things.all.sql({});
   // do not commit, as this is commented out
   // note that by this time we have already done the insert
@@ -176,10 +178,9 @@ This will show the table, then a modified table, then back to the original table
 
 ## AutoCRUD
 
-It's great to be able to have the full power of SQL when you need it -- but sometimes you just need to do some basic CRUD. EmbraceSQL automatically inspects your databases and creates default APIs for your tables for working with single and multiple records operations by key, eliminating a big pile of very tedious coding and testing.
+It's great to be able to have the full power of SQL when you need it -- but sometimes you just need to do some basic CRUD. EmbraceSQL automatically inspects your databases and creates default SQL Modules for your tables for working with single and multiple records operations by key, eliminating a big pile of very tedious coding and testing.
 
 Let's set up some tables for a really vanilla shopping cart, in our default testing SQLite database and see how this works. We'll have a pretty normal set or orders, items to order, and an association table to put items in an order.
-
 
 ```sql title="./migrations/default/002.sql"
 CREATE TABLE orders(
@@ -211,7 +212,7 @@ Without writing any SQL at all, you get a REST interface for these tables.
 - `UPDATE` particular fields to values to Update
 - `DELETE` by key to Delete
 
-You can also make `before` and `after` handlers for these automatically generated SQL APIs, without needing to write the SQL.
+You can also make `before` and `after` handlers for these automatically generated SQL modules, without needing to write the SQL.
 The way to think about it is -- EmbraceSQL has a lot of SQL built in for the common cases, and you can write any SQL you like for more complex cases. Whether you write the sql, or EmbraceSQL has it built in, you can always create event handlers to intercept query results and modify them as needed.
 
 Even more powerful, with [Generated Client Libraries](./clients), you have typing and autocompletion available for you for every API. Let's see how AutoCRUD looks from TypeScript. So you can get a lot of data access without any SQL or mapping at all.
@@ -275,7 +276,7 @@ const example = async () => {
 example();
 ```
 
-So, every SQL API and AutoCrud has event handlers, and pure SQL inside. So you
+So, every SQL module has event handlers, and pure SQL inside. So you
 can actually spy on EmbraceSQL -- even change the SQL for AutoCRUD on the fly if you really wish it!
 
 ```javascript title="./default/items/before.js"
@@ -291,16 +292,16 @@ export const before = (context) => {
 
 Working on single sets of parameters is great, but sometimes you want to do the same set of operations to an array of data. This is where batching comes in.
 
-To make batching simple, every SQL API and AutoCRUD call has automatic batch support.
+To make batching simple, every SQL module call has automatic batch support.
 In addition to named parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot.
 This is so automatic in fact, everything in EmbraceSQL is a batch -- it's just that when you send in named parameters _not_ in an array, it is a 'batch of one'.
 
 The semantics of the batch are:
 
-- You submit a batch to a SQL API or AutoCRUD, by value as a string, or by reference as a path to a file
+- You submit a batch to a SQL module, by value as a string, or by reference as a path to a file
 - If by reference, the file is downloaded for you into a batch
 - A transaction is started for you
-- For each row in the batch, run the SQL API or AutoCRUD
+- For each row in the batch, run the SQL module
 - For each exception, raise an event as normal
 - For each success, buffer in a results collection
 - Commit the transaction started for you if no unhandled errors
@@ -330,7 +331,7 @@ You can also `try/catch` in your handler code, so in practice the `error` event 
 - TSV/CSV, parameter names are extracted from the 0th row
 - JSONS - one JSON per line, each line is self describing with parameter names
 
-## Invoking SQL APIs and AutoCRUDs
+## Invoking SQL Modules
 
 There are three styles of invocation:
 
@@ -340,7 +341,7 @@ There are three styles of invocation:
 
 ### REST
 
-Every SQL API and AutoCRUD is exposed via REST, as shown in examples.
+Every SQL Module is exposed via REST, as shown in examples.
 These work until complete and return to the caller, transactions roll back automatically if any timeout occurs.
 
 ### Cient Library

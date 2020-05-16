@@ -78,7 +78,7 @@ type Context<DatabaseNames extends string, ParameterNames extends string> = {
   databases: Databases<DatabaseNames>;
 
   /**
-   * Parameters as passed to the SQL API or AutoCRUD. This can be extended
+   * Parameters as passed to the SQLModule . This can be extended
    * or modified at runtime in handlers.
    */
   parameters: ContextParameters<ParameterNames>;
@@ -144,7 +144,7 @@ type ParameterValue = {
 };
 
 /**
- * Parameters as passed to the SQL API or AutoCRUD. This can be extended
+ * Parameters as passed to the SQLModule. This can be extended
  * or modified at runtime in handlers.
  *
  * These parameters can be passed by name, so a parameter called `pig` will

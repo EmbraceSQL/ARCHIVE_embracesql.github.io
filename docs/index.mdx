@@ -56,7 +56,7 @@ curl --request POST --data '{"stuff": "world"}' http://localhost:8765/default/he
 
 And that's it -- you have just created a REST API with nothing but SQL.
 
-Not only a REST API -- but you have generated a complete JavaScript/TypeScript client library with autocomplete, and [AutoCRUD](./sqlapis#autocrud).
+Not only a REST API -- but you have generated a complete JavaScript/TypeScript client library with autocomplete, and [AutoCRUD](./sqlmodules#autocrud).
 
 ```javascript
 import EmbraceSQL from "./embrace-sql";
@@ -64,10 +64,10 @@ import EmbraceSQL from "./embrace-sql";
 const client = new EmbraceSQL("http://localhost:8765");
 
 const example = async () => {
-  const echoed = await client.databases.default.hello("world");
+  const echoed = await client.databases.default.hello.sql("world");
   console.log(echoed);
 };
 example();
 ```
 
-From here, let's make something more sophisticated with [Databases](./databases), [Tables](./tables), and [SQL APIs](./sqlapis).
+From here, let's make something more sophisticated with [Databases](./databases), [Tables](./tables), and [SQL Modules](./sqlmodules).
