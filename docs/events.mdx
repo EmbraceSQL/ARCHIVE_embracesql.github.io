@@ -2,6 +2,8 @@
 title: Events
 ---
 
+import Mermaid from "../src/mermaid";
+
 ## Getting Started
 
 One of the big choices in system design is CRUD or some form of EventSourcing / CQRS setup. EmbraceSQL -- embraces SQL -- C’s are UPDATE/INSERT/DELETE and Q’s are SELECT. They are separated by SQL itself. So CQRS is ‘free’, in fact SQL has had this notion all along.
@@ -19,14 +21,14 @@ Commands - INSERT/UPDATE/DELETE -- can be twinned to a Kafka topic, so that any 
 twinCommandsTo: kafka:hostname:port/topic
 ```
 
-There is actually a bit more than that -- EmbraceSQL internally runs off message streams, when you call an API, the inputs are enqueued, and run through each handler, as well as for the database query itself. 
+There is actually a bit more than that -- EmbraceSQL internally runs off message streams, when you call an API, the inputs are enqueued, and run through each handler, as well as for the database query itself.
 EmbraceSQL is itself a SQL EventSourcing system -- where the events _are_ the SQL modules, and the handlers are handling events.
 
 ## Event Flow
 
 ### SQL Modules
 
-```mermaid
+<Mermaid chart={`
 sequenceDiagram
   participant Client
   participant EmbraceSQL
@@ -66,7 +68,7 @@ sequenceDiagram
   end
   deactivate Database
   EmbraceSQL-->-Client: context.results returned
-```
+`}/>
 
 ## Data Events
 
@@ -98,7 +100,7 @@ After the last set of parameters is processed, which can always be a 'batch of o
 
 ### `afterError`
 
-Unhandled exceptions raised in any handler in a chain, including coming from the supporting database engine, are handed here. You can do nothing, which continues the exception. 
+Unhandled exceptions raised in any handler in a chain, including coming from the supporting database engine, are handed here. You can do nothing, which continues the exception.
 If you handle an exception, and do not raise another, and set `context.error = null`, EmbraceSQL treats it like no error happened, just like if you had wrapped your handler code in `try{} catch{}` and caught it.
 
 You can also handle exceptions normally in handler code as you see fit. This event acts as a backstop.
@@ -131,7 +133,7 @@ After the migration, this event is fired for each distinct migration SQL.
 
 ## Handlers
 
-Handlers are `async` JavaScript or TypeScript functions, that receive a `context`, run code as you see fit, and either throw an error or return. 
+Handlers are `async` JavaScript or TypeScript functions, that receive a `context`, run code as you see fit, and either throw an error or return.
 The `context` is modified in place, and serves as a shared blackboard for each request.
 
 Handlers go one per file, with the file ending in [event-name].[js|ts], exporting a single function named by [event-name].
