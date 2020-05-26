@@ -17,23 +17,23 @@
 <link rel="stylesheet" href="/styles.8f84c745.css">
 
 
-<link rel="preload" href="/styles.5b70564c.js" as="script">
+<link rel="preload" href="/styles.54b0c4a3.js" as="script">
 
-<link rel="preload" href="/runtime~main.36f99b65.js" as="script">
+<link rel="preload" href="/runtime~main.cb2f00ed.js" as="script">
 
-<link rel="preload" href="/main.f27a62a4.js" as="script">
+<link rel="preload" href="/main.dfe74692.js" as="script">
 
-<link rel="preload" href="/1.d3f8ad16.js" as="script">
+<link rel="preload" href="/1.131b0bf7.js" as="script">
 
-<link rel="preload" href="/2.4f16466a.js" as="script">
+<link rel="preload" href="/2.66c3e1bb.js" as="script">
 
-<link rel="preload" href="/19.3e6e81bd.js" as="script">
+<link rel="preload" href="/19.f9768b56.js" as="script">
 
-<link rel="preload" href="/ec1ed54d.64d74d61.js" as="script">
+<link rel="preload" href="/ec1ed54d.6b217422.js" as="script">
 
-<link rel="preload" href="/17896441.c8a51f19.js" as="script">
+<link rel="preload" href="/17896441.3163a676.js" as="script">
 
-<link rel="preload" href="/8989843e.1a928177.js" as="script">
+<link rel="preload" href="/8989843e.eb8e9ad4.js" as="script">
 
 </head>
 <body>
@@ -44,23 +44,23 @@
 </span></div></div></div></div></div><p>Run the migration. Note that you&#x27;ll need to have an <code>other</code> database set up as described in <a href="./databases">Databases</a>.</p><div class="mdxCodeBlock_iHAB"><div class="codeBlockContent_32p_"><button type="button" aria-label="Copy code to clipboard" class="copyButton_1BYj">Copy</button><div tabindex="0" class="prism-code language-shell codeBlock_19pQ"><div class="codeBlockLines_2n9r" style="color:#bfc7d5;background-color:#292d3e"><div class="token-line" style="color:#bfc7d5"><span class="token plain">docker run embrace-sql migrate</span></div></div></div></div></div><p>You can run migrations at any time. EmbraceSQL is just smart enough to detect if the needed migrations have been run on the target database, and will warn you if they have not. EmbraceSQL will still start -- but it’s possible that some of your APIs won’t do what you expect if part of your database is missing!</p><h2><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="sharing-migrations"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#sharing-migrations" title="Direct link to heading">#</a>Sharing Migrations</h2><p>Let&#x27;s say you have a sharded database, and need to create the same table multiple times. EmbraceSQL makes this easy, simply create a folder under <code>./migrations/</code> for each database and make a symbolic link to share SQL files containing migrations.</p><p>Databases and tables are great, but you need to be able to wire them into applications, which is the role of <a href="./sqlmodules">SQL Modules</a>.</p></div></article><div class="margin-vert--xl"><div class="row"><div class="col"><a href="https://github.com/civitaslearning/embrace-sql/edit/master/docs/tables.mdx" target="_blank" rel="noreferrer noopener"><svg fill="currentColor" height="1.2em" width="1.2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 40 40" style="margin-right:0.3em;vertical-align:sub"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div></div></div><div class="margin-vert--lg"><nav class="pagination-nav"><div class="pagination-nav__item"><a class="pagination-nav__link" href="/databases"><div class="pagination-nav__link--sublabel">Previous</div><div class="pagination-nav__link--label">« Databases</div></a></div><div class="pagination-nav__item pagination-nav__item--next"><a class="pagination-nav__link" href="/sqlmodules"><div class="pagination-nav__link--sublabel">Next</div><div class="pagination-nav__link--label">SQL Modules »</div></a></div></nav></div></div></div><div class="col col--3"><div class="tableOfContents_TbNY"><ul class="contents contents__left-border"><li><a href="#getting-started" class="contents__link">Getting Started</a></li><li><a href="#migrations" class="contents__link">Migrations</a></li><li><a href="#migrations-and-multiple-databases" class="contents__link">Migrations and Multiple Databases</a></li><li><a href="#sharing-migrations" class="contents__link">Sharing Migrations</a></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container"><div class="text--center"><div>Copyright © 2020 Civitas Learning, Inc. Built with Docusaurus.</div></div></div></footer>
 </div>
 
-<script src="/styles.5b70564c.js"></script>
+<script src="/styles.54b0c4a3.js"></script>
 
-<script src="/runtime~main.36f99b65.js"></script>
+<script src="/runtime~main.cb2f00ed.js"></script>
 
-<script src="/main.f27a62a4.js"></script>
+<script src="/main.dfe74692.js"></script>
 
-<script src="/1.d3f8ad16.js"></script>
+<script src="/1.131b0bf7.js"></script>
 
-<script src="/2.4f16466a.js"></script>
+<script src="/2.66c3e1bb.js"></script>
 
-<script src="/19.3e6e81bd.js"></script>
+<script src="/19.f9768b56.js"></script>
 
-<script src="/ec1ed54d.64d74d61.js"></script>
+<script src="/ec1ed54d.6b217422.js"></script>
 
-<script src="/17896441.c8a51f19.js"></script>
+<script src="/17896441.3163a676.js"></script>
 
-<script src="/8989843e.1a928177.js"></script>
+<script src="/8989843e.eb8e9ad4.js"></script>
 
 
 </body>
