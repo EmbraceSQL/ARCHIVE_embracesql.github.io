@@ -64,12 +64,12 @@ Not only a REST API -- but you have generated a complete JavaScript/TypeScript c
 Create a file in the current directory -- right next to the
 
 ```javascript title="./hello.js"
-import { EmbraceSQL } from "./client/node";
+const EmbraceSQL = require("./client/node").EmbraceSQL;
 
 const client = EmbraceSQL("http://localhost:8765");
 
 const example = async () => {
-  const echoed = await client.databases.default.hello.sql({stuff: "world"});
+  const echoed = await client.databases.default.hello.sql({ stuff: "world" });
   console.log(echoed);
 };
 example();
