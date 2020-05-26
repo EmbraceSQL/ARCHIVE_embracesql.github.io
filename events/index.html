@@ -19,21 +19,23 @@
 
 <link rel="preload" href="/styles.54b0c4a3.js" as="script">
 
-<link rel="preload" href="/runtime~main.18bd06e5.js" as="script">
+<link rel="preload" href="/runtime~main.7ec10ac3.js" as="script">
 
-<link rel="preload" href="/main.dfe74692.js" as="script">
+<link rel="preload" href="/main.31cdcd81.js" as="script">
 
-<link rel="preload" href="/1.131b0bf7.js" as="script">
+<link rel="preload" href="/1.23d10dc5.js" as="script">
 
-<link rel="preload" href="/2.66c3e1bb.js" as="script">
+<link rel="preload" href="/2.89a20604.js" as="script">
 
-<link rel="preload" href="/19.f9768b56.js" as="script">
+<link rel="preload" href="/20.26c77945.js" as="script">
 
-<link rel="preload" href="/ec1ed54d.6b217422.js" as="script">
+<link rel="preload" href="/ec1ed54d.70f87ed0.js" as="script">
 
-<link rel="preload" href="/17896441.3163a676.js" as="script">
+<link rel="preload" href="/17896441.a81c94af.js" as="script">
 
-<link rel="preload" href="/3ee9ac3f.7c7757ea.js" as="script">
+<link rel="preload" href="/19.6bdbe1e9.js" as="script">
+
+<link rel="preload" href="/3ee9ac3f.d22d123d.js" as="script">
 
 </head>
 <body>
@@ -43,7 +45,7 @@
 By default every command generates an event internal to the EmbraceSQL event processing system. EmbraceSQL itself uses an event driven architecture, starting with an API request, running through multiple event handlers, and finally returning results or an error.
 Commands - INSERT/UPDATE/DELETE -- can be twinned to a Kafka topic, so that any time the database is to be modified, other services can be informed. When one of these commands is detected, the entire originating request, encoded as JSON is placed in the topic as a message, along with the SQL. These events let you see:</p><ul><li>Who: the originating request context contains a user token if authenticated</li><li>What: the resulting SQL and Parameters</li><li>When: total ordering of events in Kafka</li><li>Why: the originating request and paramters resulting from an API call or REST</li></ul><div class="mdxCodeBlock_iHAB"><div style="color:#bfc7d5;background-color:#292d3e" class="codeBlockTitle_U1PS">./embracesql.yml</div><div class="codeBlockContent_32p_"><button type="button" aria-label="Copy code to clipboard" class="copyButton_1BYj undefined">Copy</button><div tabindex="0" class="prism-code language-yaml codeBlock_19pQ codeBlockWithTitle_2fj3"><div class="codeBlockLines_2n9r" style="color:#bfc7d5;background-color:#292d3e"><div class="token-line" style="color:#bfc7d5"><span class="token key atrule">twinCommandsTo</span><span class="token punctuation" style="color:rgb(199, 146, 234)">:</span><span class="token plain"> kafka</span><span class="token punctuation" style="color:rgb(199, 146, 234)">:</span><span class="token plain">hostname</span><span class="token punctuation" style="color:rgb(199, 146, 234)">:</span><span class="token plain">port/topic</span></div></div></div></div></div><p>There is actually a bit more than that -- EmbraceSQL internally runs off message streams, when you call an API, the inputs are enqueued, and run through each handler, as well as for the database query itself.
 EmbraceSQL is itself a SQL EventSourcing system -- where the events <em>are</em> the SQL modules, and the handlers are handling events.</p><h2><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="event-flow"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#event-flow" title="Direct link to heading">#</a>Event Flow</h2><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="sql-modules"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#sql-modules" title="Direct link to heading">#</a>SQL Modules</h3><div class="mermaid">
-  sequenceDiagram
+sequenceDiagram
   participant Client
   participant EmbraceSQL
   participant Handler
@@ -89,21 +91,23 @@ The <code>context</code> is modified in place, and serves as a shared blackboard
 
 <script src="/styles.54b0c4a3.js"></script>
 
-<script src="/runtime~main.18bd06e5.js"></script>
+<script src="/runtime~main.7ec10ac3.js"></script>
 
-<script src="/main.dfe74692.js"></script>
+<script src="/main.31cdcd81.js"></script>
 
-<script src="/1.131b0bf7.js"></script>
+<script src="/1.23d10dc5.js"></script>
 
-<script src="/2.66c3e1bb.js"></script>
+<script src="/2.89a20604.js"></script>
 
-<script src="/19.f9768b56.js"></script>
+<script src="/20.26c77945.js"></script>
 
-<script src="/ec1ed54d.6b217422.js"></script>
+<script src="/ec1ed54d.70f87ed0.js"></script>
 
-<script src="/17896441.3163a676.js"></script>
+<script src="/17896441.a81c94af.js"></script>
 
-<script src="/3ee9ac3f.7c7757ea.js"></script>
+<script src="/19.6bdbe1e9.js"></script>
+
+<script src="/3ee9ac3f.d22d123d.js"></script>
 
 
 </body>
