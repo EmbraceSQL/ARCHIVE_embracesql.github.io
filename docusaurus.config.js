@@ -8,11 +8,11 @@ module.exports = {
   ],
   title: "EmbraceSQL",
   tagline: "You type the SQL, we'll do the REST",
-  url: " https://civitaslearning.github.io/",
-  baseUrl: "/embrace-sql/",
+  url: " https://embracesql.github.io/",
+  baseUrl: "/",
   favicon: "img/favicon.ico",
-  organizationName: "civitaslearning", // Usually your GitHub org/user name.
-  projectName: "embrace-sql", // Usually your repo name.
+  organizationName: "embracesql", // Usually your GitHub org/user name.
+  projectName: "embracesql.github.io", // Usually your repo name.
   themeConfig: {
     navbar: {
       title: "EmbraceSQL",
