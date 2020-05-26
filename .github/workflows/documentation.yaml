@@ -47,4 +47,4 @@ jobs:
           git config --global user.email "wballard@mailframe.net"
           git config --global user.name "wballard"
           yarn
-          yarn deploy
+          curl http://localhost:8765/default/helloyarn deploy
