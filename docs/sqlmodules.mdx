@@ -13,6 +13,21 @@ The SQL you write is the SQL that is going to run. You are in full control and w
 
 As a simple example, let's make two new API endpoints in a directory by creating some sql files. These are tucked under the `./default` meaning they are for the defatult database.
 
+```sql title="migrations/default/001.sql"
+CREATE TABLE things(
+  id integer PRIMARY KEY,
+  name text NOT NULL
+);
+INSERT INTO things(1, ‘planes’);
+INSERT INTO things(2, ‘trains’);
+```
+
+```shell
+docker run embracesql/server migrate
+```
+
+And now the sql scripts to define the sql modules.
+
 ```sql title="./default/things/all.sql"
 SELECT * FROM things;
 ```

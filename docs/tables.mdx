@@ -24,7 +24,7 @@ INSERT INTO things(2, ‘trains’);
 Notice the 001 -- that’s just one way of doing it, but know that EmbraceSQL runs migrations in file name order, per named database. To run a migration, run this in your shell.
 
 ```shell
-docker run embrace-sql migrate
+docker run embracesql/server migrate
 ```
 
 ## Migrations and Multiple Databases
