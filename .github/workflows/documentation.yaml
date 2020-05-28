@@ -43,6 +43,7 @@ jobs:
         env:
           USE_SSH: true
           GIT_USER: wballard
+          CI: false
         run: |
           git config --global user.email "wballard@mailframe.net"
           git config --global user.name "wballard"
