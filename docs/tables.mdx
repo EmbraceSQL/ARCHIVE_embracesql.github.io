@@ -17,14 +17,17 @@ CREATE TABLE things(
   id integer PRIMARY KEY,
   name text NOT NULL
 );
-INSERT INTO things(1, ‘planes’);
-INSERT INTO things(2, ‘trains’);
+```
+
+```sql title="migrations/default/002.sql"
+INSERT INTO things(id, name) values(1, "planes");
+INSERT INTO things(id, name) values(2, "trains");
 ```
 
 Notice the 001 -- that’s just one way of doing it, but know that EmbraceSQL runs migrations in file name order, per named database. To run a migration, run this in your shell.
 
 ```shell
-docker run embracesql/server migrate
+docker run -v ${PWD}:/var/embracesql embracesql/server migrate
 ```
 
 ## Migrations and Multiple Databases
@@ -32,12 +35,14 @@ docker run embracesql/server migrate
 You can have database specific migrations by simply making a folder for each database, with sql inside. Let’s have our `other` database be different.
 
 ```sql title="migrations/other/001.sql:"
-
 CREATE TABLE strings(
-  String text PRIMARY KEY
+  string text PRIMARY KEY
 );
-INSERT INTO strings(string) VALUES(“hello world”);
+```
 
+```sql title="migrations/other/002.sql:"
+;
+INSERT INTO strings(string) VALUES("hello world");
 ```
 
 Run the migration. Note that you'll need to have an `other` database set up as described in [Databases](./databases).
