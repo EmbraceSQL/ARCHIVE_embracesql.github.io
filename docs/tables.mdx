@@ -34,6 +34,13 @@ docker run -v ${PWD}:/var/embracesql embracesql/server migrate
 
 You can have database specific migrations by simply making a folder for each database, with sql inside. Let’s have our `other` database be different.
 
+
+```yml title="embracesql.yaml"
+databases:
+  default: sqlite:embracesql.db
+  other: sqlite:other.db
+```
+
 ```sql title="migrations/other/001.sql:"
 CREATE TABLE strings(
   string text PRIMARY KEY
@@ -41,14 +48,13 @@ CREATE TABLE strings(
 ```
 
 ```sql title="migrations/other/002.sql:"
-;
 INSERT INTO strings(string) VALUES("hello world");
 ```
 
 Run the migration. Note that you'll need to have an `other` database set up as described in [Databases](./databases).
 
 ```shell
-docker run embrace-sql migrate
+docker run -v ${PWD}:/var/embracesql embracesql/server migrate
 ```
 
 You can run migrations at any time. EmbraceSQL is just smart enough to detect if the needed migrations have been run on the target database, and will warn you if they have not. EmbraceSQL will still start -- but it’s possible that some of your APIs won’t do what you expect if part of your database is missing!
