@@ -19,23 +19,23 @@
 
 <link rel="preload" href="/styles.5b70564c.js" as="script">
 
-<link rel="preload" href="/runtime~main.df18ad48.js" as="script">
+<link rel="preload" href="/runtime~main.d70a012e.js" as="script">
 
-<link rel="preload" href="/main.3e3f13c4.js" as="script">
+<link rel="preload" href="/main.9682adfd.js" as="script">
 
-<link rel="preload" href="/1.35b271e0.js" as="script">
+<link rel="preload" href="/1.e7d4691f.js" as="script">
 
-<link rel="preload" href="/2.0be9652e.js" as="script">
+<link rel="preload" href="/3.1a1bfcfa.js" as="script">
 
-<link rel="preload" href="/20.d89ce6e2.js" as="script">
+<link rel="preload" href="/20.8b48b2e7.js" as="script">
 
-<link rel="preload" href="/ec1ed54d.53b93aa0.js" as="script">
+<link rel="preload" href="/ec1ed54d.c11b4add.js" as="script">
 
-<link rel="preload" href="/17896441.78868a5e.js" as="script">
+<link rel="preload" href="/17896441.76a0e7a6.js" as="script">
 
-<link rel="preload" href="/19.7f74cf5d.js" as="script">
+<link rel="preload" href="/2.0e9cb886.js" as="script">
 
-<link rel="preload" href="/3ee9ac3f.dac440f4.js" as="script">
+<link rel="preload" href="/3ee9ac3f.fae88719.js" as="script">
 
 </head>
 <body>
@@ -59,55 +59,49 @@ sequenceDiagram
   EmbraceSQL-&gt;&gt;+Handler: beforeStreamMessage
   Handler--&gt;-EmbraceSQL: ...
   EmbraceSQL-xKafka: stream context as message
-  EmbraceSQL-&gt;&gt;+Handler: beforeBatch chain
-  Handler--&gt;-EmbraceSQL: ...
   EmbraceSQL-&gt;&gt;Database: transaction begin
   activate Database
-  loop each batch entry
-    EmbraceSQL-&gt;&gt;+Handler: before chain
-    Handler--&gt;-EmbraceSQL: ...
-    EmbraceSQL-&gt;&gt;Database: sql + parameters
-    Database--&gt;EmbraceSQL: results returned
-    EmbraceSQL-&gt;&gt;+Handler: after chain
-    Handler--&gt;-EmbraceSQL: ...
-    opt Errors
-      EmbraceSQL-&gt;&gt;+Handler: afterError chain
-      Handler--&gt;-EmbraceSQL: ...
-    end
-  end
-  EmbraceSQL-&gt;&gt;+Handler: afterBatch chain
+  EmbraceSQL-&gt;&gt;+Handler: before chain
   Handler--&gt;-EmbraceSQL: ...
+  EmbraceSQL-&gt;&gt;Database: sql + parameters
+  Database--&gt;&gt;EmbraceSQL: results returned
+  EmbraceSQL-&gt;&gt;+Handler: after chain
+  Handler--&gt;-EmbraceSQL: ...
+  opt Errors
+    EmbraceSQL-&gt;&gt;+Handler: afterError chain
+    Handler--&gt;-EmbraceSQL: ...
+  end
   alt error unhandled
     EmbraceSQL-&gt;&gt;Database: transaction rollback
   else
     EmbraceSQL-&gt;&gt;Database: transaction commit
   end
   deactivate Database
-  EmbraceSQL--&gt;-Client: context.results returned
-</div><h2><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="data-events"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#data-events" title="Direct link to heading">#</a>Data Events</h2><p>Data events are the main point you can customize SQL modules. All data handlers are hierarchial, with two chains &#x27;before&#x27; and &#x27;after&#x27;. Before chains run from the root folder down the file hierarchy toward your SQL file, after chains run from the final folder with the SQL up the file hierarchy.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="beforebatch"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#beforebatch" title="Direct link to heading">#</a><code>beforeBatch</code></h3><p>Everything exists in the context of a batch, though sometimes that batch has just one entry. Right before the batch starts its initial transaction, this handler gives you a chance to look at all the data to be processed in the batch.</p><p>This is a place you can pre-clean a batch, removing entries so that they do not run at all, or adding additional parameters to every batch entry.</p><p>Once this event is handled, EmbraceSQL will iterate every remaining entry in the batch.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="before"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#before" title="Direct link to heading">#</a><code>before</code></h3><p>Each of the folder hierarchy based <code>before</code> handlers has a service queue, automatically defined, so that each folder, and each sql file has a before handling queue. Messages are placed in the root folder before handler, handled, and then passed down the folder hierarchy until a query is reached.</p><p>After the <code>before</code> handlers are processed, the resulting <code>context</code> is presented to a pool of SQL processing queues for each attached database. This allows concurrent data access without resorting to multithreading or traditional connection pooling.</p><p>When a query completes, the resulting data is attached to the context and passed back up the chain as <code>after</code> events.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="after"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#after" title="Direct link to heading">#</a><code>after</code></h3><p>Each folder in the hierarchy, and the sql file itself has an automatically defined <code>after</code> event queue, which run in the reverse order as <code>before</code> events, from the sql file back to the root directory. Each handler runs, and passed up to the subsequent queue.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="afterbatch"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#afterbatch" title="Direct link to heading">#</a><code>afterBatch</code></h3><p>After the last set of parameters is processed, which can always be a &#x27;batch of one&#x27;, right before the batch transaction is committed, you have an event to handle.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="aftererror"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#aftererror" title="Direct link to heading">#</a><code>afterError</code></h3><p>Unhandled exceptions raised in any handler in a chain, including coming from the supporting database engine, are handed here. You can do nothing, which continues the exception.
+  EmbraceSQL--&gt;&gt;Client: context.results returned
+</div><h2><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="data-events"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#data-events" title="Direct link to heading">#</a>Data Events</h2><p>Data events are the main point you can customize SQL modules. All data handlers are hierarchial, with two chains &#x27;before&#x27; and &#x27;after&#x27;. Before chains run from the root folder down the file hierarchy toward your SQL file, after chains run from the final folder with the SQL up the file hierarchy.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="before"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#before" title="Direct link to heading">#</a><code>before</code></h3><p>Each of the folder hierarchy based <code>before</code> handlers has a service queue, automatically defined, so that each folder, and each sql file has a before handling queue. Messages are placed in the root folder before handler, handled, and then passed down the folder hierarchy until a query is reached.</p><p>After the <code>before</code> handlers are processed, the resulting <code>context</code> is presented to a pool of SQL processing queues for each attached database. This allows concurrent data access without resorting to multithreading or traditional connection pooling.</p><p>When a query completes, the resulting data is attached to the context and passed back up the chain as <code>after</code> events.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="after"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#after" title="Direct link to heading">#</a><code>after</code></h3><p>Each folder in the hierarchy, and the sql file itself has an automatically defined <code>after</code> event queue, which run in the reverse order as <code>before</code> events, from the sql file back to the root directory. Each handler runs, and passed up to the subsequent queue.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="aftererror"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#aftererror" title="Direct link to heading">#</a><code>afterError</code></h3><p>Unhandled exceptions raised in any handler in a chain, including coming from the supporting database engine, are handed here. You can do nothing, which continues the exception.
 If you handle an exception, and do not raise another, and set <code>context.error = null</code>, EmbraceSQL treats it like no error happened, just like if you had wrapped your handler code in <code>try{} catch{}</code> and caught it.</p><p>You can also handle exceptions normally in handler code as you see fit. This event acts as a backstop.</p><p>There is no <code>beforeError</code>, EmbraceSQL is not psychic 🔮.</p><h2><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="system-events"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#system-events" title="Direct link to heading">#</a>System Events</h2><p>While data events fire in response to SQL module invocations, system events can fire at any time.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="validatetoken"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#validatetoken" title="Direct link to heading">#</a><code>validateToken</code></h3><p>OpenID Connect authorization tokens are decoded and validated by default. But you can provide your own event handler that does your own token validation.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="resolvesql"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#resolvesql" title="Direct link to heading">#</a><code>resolveSQL</code></h3><p>SQL module inovcations resovle to chain of event handlers and associated SQL. The <code>resolve</code> event lets you tap into this and replace any handler or SQL you like, running <em>before</em> the first <code>before</code> handler.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="beforestreammessage"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#beforestreammessage" title="Direct link to heading">#</a><code>beforeStreamMessage</code></h3><p>When connected to an external message stream, just before a message is to be sent to an external message stream, you have a chance to intercept it.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="beforemigration"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#beforemigration" title="Direct link to heading">#</a><code>beforeMigration</code></h3><p>Just before a migration is going to start, this event is fired for each distinct migration SQL script that will run.</p><h3><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="aftermigration"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#aftermigration" title="Direct link to heading">#</a><code>afterMigration</code></h3><p>After the migration, this event is fired for each distinct migration SQL.</p><h2><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_ZqCz" id="handlers"></a><a aria-hidden="true" tabindex="-1" class="hash-link" href="#handlers" title="Direct link to heading">#</a>Handlers</h2><p>Handlers are <code>async</code> JavaScript or TypeScript functions, that receive a <code>context</code>, run code as you see fit, and either throw an error or return.
-The <code>context</code> is modified in place, and serves as a shared blackboard for each request.</p><p>Handlers go one per file, with the file ending in [event-name].[js|ts], exporting a single function named by [event-name].</p><p>EmbraceSQL will generate empty handlers for you for each folder, for each sql file, and for the system level event handlers.</p></div></article><div class="margin-vert--xl"><div class="row"><div class="col"><a href="https://github.com/civitaslearning/embrace-sql/edit/master/docs/events.mdx" target="_blank" rel="noreferrer noopener"><svg fill="currentColor" height="1.2em" width="1.2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 40 40" style="margin-right:0.3em;vertical-align:sub"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div></div></div><div class="margin-vert--lg"><nav class="pagination-nav"><div class="pagination-nav__item"><a class="pagination-nav__link" href="/deploying"><div class="pagination-nav__link--sublabel">Previous</div><div class="pagination-nav__link--label">« Deploying</div></a></div><div class="pagination-nav__item pagination-nav__item--next"><a class="pagination-nav__link" href="/problems"><div class="pagination-nav__link--sublabel">Next</div><div class="pagination-nav__link--label">Problems »</div></a></div></nav></div></div></div><div class="col col--3"><div class="tableOfContents_TbNY"><ul class="contents contents__left-border"><li><a href="#getting-started" class="contents__link">Getting Started</a></li><li><a href="#event-flow" class="contents__link">Event Flow</a><ul><li><a href="#sql-modules" class="contents__link">SQL Modules</a></li></ul></li><li><a href="#data-events" class="contents__link">Data Events</a><ul><li><a href="#beforebatch" class="contents__link"><code>beforeBatch</code></a></li><li><a href="#before" class="contents__link"><code>before</code></a></li><li><a href="#after" class="contents__link"><code>after</code></a></li><li><a href="#afterbatch" class="contents__link"><code>afterBatch</code></a></li><li><a href="#aftererror" class="contents__link"><code>afterError</code></a></li></ul></li><li><a href="#system-events" class="contents__link">System Events</a><ul><li><a href="#validatetoken" class="contents__link"><code>validateToken</code></a></li><li><a href="#resolvesql" class="contents__link"><code>resolveSQL</code></a></li><li><a href="#beforestreammessage" class="contents__link"><code>beforeStreamMessage</code></a></li><li><a href="#beforemigration" class="contents__link"><code>beforeMigration</code></a></li><li><a href="#aftermigration" class="contents__link"><code>afterMigration</code></a></li></ul></li><li><a href="#handlers" class="contents__link">Handlers</a></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container"><div class="text--center"><div>Copyright © 2020 Civitas Learning, Inc. Built with Docusaurus.</div></div></div></footer>
+The <code>context</code> is modified in place, and serves as a shared blackboard for each request.</p><p>Handlers go one per file, with the file ending in [event-name].[js|ts], exporting a single function named by [event-name].</p><p>EmbraceSQL will generate empty handlers for you for each folder, for each sql file, and for the system level event handlers.</p></div></article><div class="margin-vert--xl"><div class="row"><div class="col"><a href="https://github.com/civitaslearning/embrace-sql/edit/master/docs/events.mdx" target="_blank" rel="noreferrer noopener"><svg fill="currentColor" height="1.2em" width="1.2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 40 40" style="margin-right:0.3em;vertical-align:sub"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div></div></div><div class="margin-vert--lg"><nav class="pagination-nav"><div class="pagination-nav__item"><a class="pagination-nav__link" href="/deploying"><div class="pagination-nav__link--sublabel">Previous</div><div class="pagination-nav__link--label">« Deploying</div></a></div><div class="pagination-nav__item pagination-nav__item--next"><a class="pagination-nav__link" href="/problems"><div class="pagination-nav__link--sublabel">Next</div><div class="pagination-nav__link--label">Problems »</div></a></div></nav></div></div></div><div class="col col--3"><div class="tableOfContents_TbNY"><ul class="contents contents__left-border"><li><a href="#getting-started" class="contents__link">Getting Started</a></li><li><a href="#event-flow" class="contents__link">Event Flow</a><ul><li><a href="#sql-modules" class="contents__link">SQL Modules</a></li></ul></li><li><a href="#data-events" class="contents__link">Data Events</a><ul><li><a href="#before" class="contents__link"><code>before</code></a></li><li><a href="#after" class="contents__link"><code>after</code></a></li><li><a href="#aftererror" class="contents__link"><code>afterError</code></a></li></ul></li><li><a href="#system-events" class="contents__link">System Events</a><ul><li><a href="#validatetoken" class="contents__link"><code>validateToken</code></a></li><li><a href="#resolvesql" class="contents__link"><code>resolveSQL</code></a></li><li><a href="#beforestreammessage" class="contents__link"><code>beforeStreamMessage</code></a></li><li><a href="#beforemigration" class="contents__link"><code>beforeMigration</code></a></li><li><a href="#aftermigration" class="contents__link"><code>afterMigration</code></a></li></ul></li><li><a href="#handlers" class="contents__link">Handlers</a></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container"><div class="text--center"><div>Copyright © 2020 Civitas Learning, Inc. Built with Docusaurus.</div></div></div></footer>
 </div>
 
 <script src="/styles.5b70564c.js"></script>
 
-<script src="/runtime~main.df18ad48.js"></script>
+<script src="/runtime~main.d70a012e.js"></script>
 
-<script src="/main.3e3f13c4.js"></script>
+<script src="/main.9682adfd.js"></script>
 
-<script src="/1.35b271e0.js"></script>
+<script src="/1.e7d4691f.js"></script>
 
-<script src="/2.0be9652e.js"></script>
+<script src="/3.1a1bfcfa.js"></script>
 
-<script src="/20.d89ce6e2.js"></script>
+<script src="/20.8b48b2e7.js"></script>
 
-<script src="/ec1ed54d.53b93aa0.js"></script>
+<script src="/ec1ed54d.c11b4add.js"></script>
 
-<script src="/17896441.78868a5e.js"></script>
+<script src="/17896441.76a0e7a6.js"></script>
 
-<script src="/19.7f74cf5d.js"></script>
+<script src="/2.0e9cb886.js"></script>
 
-<script src="/3ee9ac3f.dac440f4.js"></script>
+<script src="/3ee9ac3f.fae88719.js"></script>
 
 
 </body>
