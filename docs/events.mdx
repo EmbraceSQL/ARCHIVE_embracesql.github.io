@@ -28,7 +28,8 @@ EmbraceSQL is itself a SQL EventSourcing system -- where the events _are_ the SQ
 
 ### SQL Modules
 
-<Mermaid chart={`
+<Mermaid
+  chart={`
 sequenceDiagram
   participant Client
   participant EmbraceSQL
@@ -43,44 +44,31 @@ sequenceDiagram
   EmbraceSQL->>+Handler: beforeStreamMessage
   Handler-->-EmbraceSQL: ...
   EmbraceSQL-xKafka: stream context as message
-  EmbraceSQL->>+Handler: beforeBatch chain
-  Handler-->-EmbraceSQL: ...
   EmbraceSQL->>Database: transaction begin
   activate Database
-  loop each batch entry
-    EmbraceSQL->>+Handler: before chain
-    Handler-->-EmbraceSQL: ...
-    EmbraceSQL->>Database: sql + parameters
-    Database-->EmbraceSQL: results returned
-    EmbraceSQL->>+Handler: after chain
-    Handler-->-EmbraceSQL: ...
-    opt Errors
-      EmbraceSQL->>+Handler: afterError chain
-      Handler-->-EmbraceSQL: ...
-    end
-  end
-  EmbraceSQL->>+Handler: afterBatch chain
+  EmbraceSQL->>+Handler: before chain
   Handler-->-EmbraceSQL: ...
+  EmbraceSQL->>Database: sql + parameters
+  Database-->>EmbraceSQL: results returned
+  EmbraceSQL->>+Handler: after chain
+  Handler-->-EmbraceSQL: ...
+  opt Errors
+    EmbraceSQL->>+Handler: afterError chain
+    Handler-->-EmbraceSQL: ...
+  end
   alt error unhandled
     EmbraceSQL->>Database: transaction rollback
   else
     EmbraceSQL->>Database: transaction commit
   end
   deactivate Database
-  EmbraceSQL-->-Client: context.results returned
-`}/>
+  EmbraceSQL-->>Client: context.results returned
+`}
+/>
 
 ## Data Events
 
 Data events are the main point you can customize SQL modules. All data handlers are hierarchial, with two chains 'before' and 'after'. Before chains run from the root folder down the file hierarchy toward your SQL file, after chains run from the final folder with the SQL up the file hierarchy.
-
-### `beforeBatch`
-
-Everything exists in the context of a batch, though sometimes that batch has just one entry. Right before the batch starts its initial transaction, this handler gives you a chance to look at all the data to be processed in the batch.
-
-This is a place you can pre-clean a batch, removing entries so that they do not run at all, or adding additional parameters to every batch entry.
-
-Once this event is handled, EmbraceSQL will iterate every remaining entry in the batch.
 
 ### `before`
 
@@ -93,10 +81,6 @@ When a query completes, the resulting data is attached to the context and passed
 ### `after`
 
 Each folder in the hierarchy, and the sql file itself has an automatically defined `after` event queue, which run in the reverse order as `before` events, from the sql file back to the root directory. Each handler runs, and passed up to the subsequent queue.
-
-### `afterBatch`
-
-After the last set of parameters is processed, which can always be a 'batch of one', right before the batch transaction is committed, you have an event to handle.
 
 ### `afterError`
 

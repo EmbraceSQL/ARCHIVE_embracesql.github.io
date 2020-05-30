@@ -2,6 +2,8 @@
 title: SQL Modules
 ---
 
+import Mermaid from "../src/mermaid";
+
 ## Getting Started
 
 A given SQL file defines a new Modules, which exposes an API, automatically sets up [event queues](./events), generates Data Handlers templates, and [Generated Client Libraries](./clients).
@@ -50,7 +52,7 @@ Go ahead and give these APIs a test. This will give you a before and after look.
 
 ```shell
 curl http://localhost:8765/default/things/all
-curl --request POST --data '{"id": 100, "name": "cake"}' http://localhost:8765/default/things/add
+curl --request POST --data '{"id": 100, "name": "cake"}' -H "Content-Type: application/json" http://localhost:8765/default/things/add
 curl http://localhost:8765/default/things/all
 ```
 
@@ -61,19 +63,15 @@ Data Handlers are an opportunity for you to add bits of code to handle events in
 Back in the local directory do `ls things/default` -- notice a few new files:
 
 ```
-all.sql.before.js
-all.sql.beforeBatch.js
-all.sql.after.js
-all.sql.afterBatch.js
-all.sql.afterError.js
-add.sql.before.js
-add.sql.beforeBatch.js
-add.sql.after.js
-add.sql.afterBatch.js
-add.sql.afterError.js
+all.sql.before.ts
+all.sql.after.ts
+all.sql.afterError.ts
+add.sql.before.ts
+add.sql.after.ts
+add.sql.afterError.ts
 ```
 
-Take a look inside -- these are data handlers, generated in the default JavaScript (TypeScript works too, along with any Babel supported compile-to-JS language). `before` provides the ability to intercept a query on the way in, and `after` results on the way out.
+Take a look inside -- these are data handlers, generated in TypeScript. `before` provides the ability to intercept a query on the way in, and `after` results on the way out.
 
 You are really limited only by your imagination, but some suggestions for `before` handlers:
 
@@ -92,7 +90,8 @@ OK -- so _resolution_, handlers run in order from root to child, so `./before.js
 
 This means handlers are a chain:
 
-```mermaid
+<Mermaid
+  chart={`
 stateDiagram
   br: Root level before handler
   bf: Folder level before handler
@@ -107,7 +106,8 @@ stateDiagram
   aff --> af
   af --> ar
   ar --> [*]
-```
+`}
+/>
 
 Let’s look inside the `add` handlers, and tweak some parameters.
 
@@ -306,27 +306,9 @@ export const before = (context) => {
 };
 ```
 
-## Batching
-
-Working on single sets of parameters is great, but sometimes you want to do the same set of operations to an array of data. This is where batching comes in.
-
-To make batching simple, every SQL module call has automatic batch support.
-In addition to named parameters, you can pass in an array -- a batch -- of parameters, which execute together in one shot.
-This is so automatic in fact, everything in EmbraceSQL is a batch -- it's just that when you send in named parameters _not_ in an array, it is a 'batch of one'.
-
-The semantics of the batch are:
-
-- You submit a batch to a SQL module, by value as a string, or by reference as a path to a file
-- If by reference, the file is downloaded for you into a batch
-- A transaction is started for you
-- For each row in the batch, run the SQL module
-- For each exception, raise an event as normal
-- For each success, buffer in a results collection
-- Commit the transaction started for you if no unhandled errors
-
 ### Error Handling
 
-Some errors are more critical than others. Sometimes you want to keep going, sometimes you want to abort. EmbraceSQL is a bit of a perfectionist, and aborts the entire batch on any unhandled error. You can be more forgiving though, and decide to keep going by creating an error handler:
+Some errors are more critical than others. Sometimes you want to keep going, sometimes you want to abort. EmbraceSQL is a bit of a perfectionist, and aborts the entire request on any unhandled error. You can be more forgiving though, and decide to keep going by creating an error handler:
 
 ```javascript title="./things/add.sql.error.js"
 export const error = (context) => {
@@ -337,7 +319,7 @@ export const error = (context) => {
   // optionally 'eat' the error
   context.error = undefined;
 
-  // raise it again -- or any error and the batch aborts
+  // raise it again -- or any error and the transaction aborts
   // throw "Oh! Noes!";
 };
 ```
@@ -365,35 +347,5 @@ These work until complete and return to the caller, transactions roll back autom
 ### Cient Library
 
 Client libraries are typed wrappers that support auto-complete, but are really just REST.
-
-### Fire and Forget
-
-To avoid timeouts, and to not wait on long jobs you can submit a request via SQS, which you configure:
-
-```yaml title="./embracesql.yml"
-fire_and_forget_from: amazon://${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}/arn:aws:sqs:us-east-2:123456789012:queue1
-fire_and_forget_workers: 1
-```
-
-Each message is on the queue is like:
-
-```json
-{
-  "path": "/things/add",
-  "parameters": {
-    "id": 200,
-    "name": "a great sample"
-  }
-}
-```
-
-Parameters can be
-
-- Named (name value pairs, JSON object)
-- Batch (array of Named)
-- Batch (path of file, string).
-
-It's perfectly possible to have multiple EmbraceSQL servers running all pointed at the same input queue, in which case each server can and will be processing at least one message at a time.
-You should consider using a [FIFO Queue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html).
 
 Having an API is great, now let's add [Security](./security).
