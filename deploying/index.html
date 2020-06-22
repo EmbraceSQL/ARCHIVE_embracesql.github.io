@@ -7,14 +7,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.4.4/mermaid.min.js"></script>
 <script src="/init.js"></script><title data-react-helmet="true">Deploying | EmbraceSQL</title><meta data-react-helmet="true" name="twitter:card" content="summary_large_image"><meta data-react-helmet="true" property="og:title" content="Deploying | EmbraceSQL"><meta data-react-helmet="true" name="description" content="Getting Started"><meta data-react-helmet="true" property="og:description" content="Getting Started"><meta data-react-helmet="true" property="og:url" content=" https://embracesql.github.io//deploying"><link data-react-helmet="true" rel="shortcut icon" href="/img/favicon.ico"><link data-react-helmet="true" rel="canonical" href="https://embracesql.github.io//deploying"><link rel="stylesheet" href="/styles.ec5e3003.css">
 <link rel="preload" href="/styles.dea9df53.js" as="script">
-<link rel="preload" href="/runtime~main.0b9cc77c.js" as="script">
-<link rel="preload" href="/main.81123c20.js" as="script">
+<link rel="preload" href="/runtime~main.feb29369.js" as="script">
+<link rel="preload" href="/main.b2a2ed46.js" as="script">
 <link rel="preload" href="/1.b02d4389.js" as="script">
 <link rel="preload" href="/3.364d9a71.js" as="script">
 <link rel="preload" href="/21.95640fc2.js" as="script">
 <link rel="preload" href="/ec1ed54d.33c7e9ce.js" as="script">
 <link rel="preload" href="/17896441.73950f02.js" as="script">
-<link rel="preload" href="/35ade894.c0b39b0f.js" as="script">
+<link rel="preload" href="/35ade894.c91e500d.js" as="script">
 </head>
 <body>
 <script>!function(){function t(t){document.documentElement.setAttribute("data-theme",t)}var e=window.matchMedia("(prefers-color-scheme: dark)"),n=function(){var t=null;try{t=localStorage.getItem("theme")}catch(t){}return t}();null!==n?t(n):e.matches&&t("dark")}()</script><div id="__docusaurus">
@@ -24,13 +24,13 @@ To make working with versioned code easier, Embrace SQL knows which migrations a
 Even smarter -- EmbraceSQL, for each database, for each schema, keeps track of the schema after each migration and will warn you if the schema does no match the expectations, and raise and event containing the schema diff.
 Embrace SQL will still try to run your SQL modules even if there is a mismatch, but having the mismatch schema output will greatly aid your comfort with versioning.</p><h2><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_2PJb" id="logging"></a>Logging<a aria-hidden="true" tabindex="-1" class="hash-link" href="#logging" title="Direct link to heading">#</a></h2><p>EmbraceSQL writes out informative messages to <code>stdout</code> and error messages to <code>stderr</code>. Every message is written as a single line JSON with escaped linefeeds in an attempt to make the logs easier to parse and process with your favoite log and event management tool.</p><p>Four log levels are enumerated: <code>DEBUG</code>, <code>INFO</code>, <code>WARN</code>, <code>ERROR</code>.</p><h2><a aria-hidden="true" tabindex="-1" class="anchor enhancedAnchor_2PJb" id="metrics"></a>Metrics<a aria-hidden="true" tabindex="-1" class="hash-link" href="#metrics" title="Direct link to heading">#</a></h2><p>EmbraceSQL exports metrics in Prometheus format at a well known URL <code>http://server:port/metrics</code>. In addition to default Prometheus metrics, you will find:</p><ul><li>Per SQL Module<ul><li>Counters for every event</li><li>Histogram for every event handler run duration</li></ul></li><li>Per Database<ul><li>Counters for every event</li><li>Histogram for every event handler run duration</li></ul></li></ul></div></article><div class="margin-vert--xl"><div class="row"><div class="col"><a href="https://github.com/civitaslearning/embrace-sql/edit/master/docs/deploying.mdx" target="_blank" rel="noreferrer noopener"><svg fill="currentColor" height="1.2em" width="1.2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 40 40" style="margin-right:0.3em;vertical-align:sub"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div></div></div><div class="margin-vert--lg"><nav class="pagination-nav" aria-label="Blog list page navigation"><div class="pagination-nav__item"><a class="pagination-nav__link" href="/configuration"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">« Configuration</div></a></div><div class="pagination-nav__item pagination-nav__item--next"><a class="pagination-nav__link" href="/events"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Events »</div></a></div></nav></div></div></div><div class="col col--3"><div class="tableOfContents_wfLO"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#getting-started" class="table-of-contents__link">Getting Started</a></li><li><a href="#online-versioning" class="table-of-contents__link">Online Versioning</a></li><li><a href="#logging" class="table-of-contents__link">Logging</a></li><li><a href="#metrics" class="table-of-contents__link">Metrics</a></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container"><div class="text--center"><div>Copyright © 2020 Civitas Learning, Inc. Built with Docusaurus.</div></div></div></footer></div>
 <script src="/styles.dea9df53.js"></script>
-<script src="/runtime~main.0b9cc77c.js"></script>
-<script src="/main.81123c20.js"></script>
+<script src="/runtime~main.feb29369.js"></script>
+<script src="/main.b2a2ed46.js"></script>
 <script src="/1.b02d4389.js"></script>
 <script src="/3.364d9a71.js"></script>
 <script src="/21.95640fc2.js"></script>
 <script src="/ec1ed54d.33c7e9ce.js"></script>
 <script src="/17896441.73950f02.js"></script>
-<script src="/35ade894.c0b39b0f.js"></script>
+<script src="/35ade894.c91e500d.js"></script>
 </body>
 </html>
